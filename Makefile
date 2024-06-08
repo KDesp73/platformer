@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Iinclude -Ilib/raylib/raylib-5.0_linux_amd64/include
+CFLAGS = -Wall -Iinclude -Ilib/raylib/raylib-5.0_linux_amd64/include -DDEBUG -ggdb
 LFLAGS = -L./lib/raylib/raylib-5.0_linux_amd64/lib -lm -lpthread -ldl -l:libraylib.a
 
 SRC_DIR = src

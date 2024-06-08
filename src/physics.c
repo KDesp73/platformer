@@ -1,0 +1,86 @@
+
+#include "physics.h"
+#include "config.h"
+#include "raylib.h"
+#include "raymath.h"
+#define CLIB_IMPLEMENTATION
+#include "clib.h"
+#include "entities.h"
+
+#define PLAYER_TOP(player) (player->position.y)
+#define PLAYER_BOTTOM(player) (player->position.y + player->height)
+#define PLAYER_LEFT(player) (player->position.x)
+#define PLAYER_RIGHT(player) (player->position.x + player->width)
+
+#define PLATFORM_TOP(platform) (platform->start.y - platform->thickness / 2.0f)
+#define PLATFORM_BOTTOM(platform) (platform->start.y + platform->thickness / 2.0f)
+#define PLATFORM_LEFT(platform) (platform->start.x)
+#define PLATFORM_RIGHT(platform) (platform->start.x + platform->length)
+
+#define PLAYER_IS_INSIDE_PLATFORM(player, platform) \
+    (PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) && PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform))
+
+int check_collision(Player* player, Platform* platform) {
+    return (PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform) &&
+             PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) &&
+             PLAYER_TOP(player) <= PLATFORM_BOTTOM(platform) &&
+             PLAYER_BOTTOM(player) >= PLATFORM_TOP(platform));
+}
+
+void resolve_collision(Player* player, Platform* platform) {
+    if(PLAYER_TOP(player) < PLATFORM_TOP(platform)) { // Player is above the platform
+        player->position.y = PLATFORM_TOP(platform) - player->height;
+        player->velocity.y = 0;
+        player->is_grounded = true;
+    } else if(PLAYER_LEFT(player) < PLATFORM_LEFT(platform)){ // Player is colliding from the left
+        player->position.x = PLATFORM_LEFT(platform) - player->width; 
+        player->velocity.x = 0;
+    } else if(PLAYER_RIGHT(player) > PLATFORM_RIGHT(platform)){ // Player is colliding from the right
+        player->position.x = PLATFORM_RIGHT(platform);
+        player->velocity.x = 0;
+    } else if(PLAYER_BOTTOM(player) > PLATFORM_BOTTOM(platform)){ // Player is under the platform
+        player->position.y = Clamp(player->position.y, PLATFORM_BOTTOM(platform),  GetScreenHeight());
+    } 
+}
+
+void check_and_resolve_collisions(Player* player, PlatformCollection platforms) {
+    if(PLAYER_BOTTOM(player) < GetScreenHeight())
+        player->is_grounded = false;
+    for (size_t i = 0; i < platforms.count; ++i) {
+        Platform* platform = platforms.items[i];
+        if (check_collision(player, platform)) {
+            resolve_collision(player, platform);
+        } else {
+        }
+    }
+}
+
+void update_player(Player* player, float windowWidth, float windowHeight) {
+    if (player->is_grounded && IsKeyDown(KEY_SPACE)) {
+        player->velocity.y += -JUMP_FORCE;
+        player->is_grounded = false;
+    }
+
+    if (!player->is_grounded) {
+        player->velocity.y += GRAVITY * DT;
+    }
+
+    player->position.y += player->velocity.y * DT;
+
+    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
+        player->velocity.x = -PLAYER_STEP;
+    } else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
+        player->velocity.x = PLAYER_STEP;
+    } else {
+        player->velocity.x = 0;
+    }
+
+    player->position.x += player->velocity.x * DT;
+
+    player->position = Vector2Clamp(player->position, (Vector2) {0}, (Vector2) {windowWidth - player->width, windowHeight - player->height});
+    if (player->position.y >= windowHeight - player->height) {
+        player->position.y = windowHeight - player->height;
+        player->velocity.y = 0;
+        player->is_grounded = true;
+    }
+}
