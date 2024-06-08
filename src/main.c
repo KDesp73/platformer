@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "physics.h"
+#include "textures.h"
 
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
@@ -49,14 +50,18 @@ int main(){
         .game_over = false
     };
 
-    Texture2D cat_texture = LoadTexture("assets/cat.png");
-    Texture2D door_texture = LoadTexture("assets/door.png");
+    Textures textures = make_textures(
+        "assets/cat.png",
+        "assets/door.png",
+        NULL
+    );
+
     Player player = {
         .position = (Vector2){w/2.0f, h/2.0f},
         .width= 20.0f,
         .height= 30.0f,
         .color = RED,
-        .sprite = &cat_texture
+        .sprite = &textures.items[PLAYER]
     };
 
     PlatformCollection platforms = make_platform_collection(
@@ -78,10 +83,8 @@ int main(){
         .position = (Vector2) {150, 300-60-10},
         .size = (Vector2) {40.0f, 60.0f},
         .color = GREEN,
-        .sprite = &door_texture
+        .sprite = &textures.items[DOOR]
     };
-
-    DEBU("count: %zu", platforms.count);
 
     while(!WindowShouldClose()){
         BeginDrawing();
@@ -98,16 +101,14 @@ int main(){
 
             ClearBackground(GetColor(0x181818FF));
 
+            DrawText(TextFormat("Level %zu", game.level), 20, 20, 30, WHITE);
+
             draw_door(door);
             draw_player(player);
             draw_platforms(platforms);
-
-#ifdef DEBUG
-            print_player_position(player, 10, 10);
-#endif
         } else {
             ClearBackground(GetColor(0x181818FF));
-            Cstr text = "LEVEL COMPLETE";
+            Cstr text = TextFormat("LEVEL %zu COMPLETE", game.level);
             int font_size = 100;
             int size = MeasureText(text, font_size);
             DrawText(text, w/2 - size / 2, h/2 - 100/2, font_size, WHITE);
@@ -118,8 +119,7 @@ int main(){
     }
 
     free_platforms(platforms);
-    UnloadTexture(cat_texture);
-    UnloadTexture(door_texture);
+    unload_textures(textures);
     CloseWindow();
 
     return 0;

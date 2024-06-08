@@ -16,10 +16,10 @@
 #define PLATFORM_LEFT(platform) (platform->start.x)
 #define PLATFORM_RIGHT(platform) (platform->start.x + platform->length)
 
-#define DOOR_LEFT(door) (door.position.x)
-#define DOOR_RIGHT(door) (door.position.x + door.size.x)
 #define DOOR_TOP(door) (door.position.y)
 #define DOOR_BOTTOM(door) (door.position.y + door.size.y)
+#define DOOR_LEFT(door) (door.position.x)
+#define DOOR_RIGHT(door) (door.position.x + door.size.x)
 
 #define PLAYER_IS_INSIDE_PLATFORM(player, platform) \
     (PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) && PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform))
