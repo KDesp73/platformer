@@ -84,8 +84,12 @@ int main(){
         if(!game.game_over){
             update_player(&player, w, h);
             check_and_resolve_platform_collisions(&player, platforms);
-            if(check_door_collision(&player, door) && IsKeyPressed(KEY_UP)){
-                game.game_over = true;
+
+            if(check_door_collision(&player, door)){
+                DrawText("^", door.position.x + door.size.x / 2 - MeasureText("^", 70) / 2.0f, door.position.y - 70/2.0f - 10, 70, WHITE);
+                if(IsKeyPressed(KEY_UP)){
+                    game.game_over = true;
+                }
             }
 
             ClearBackground(GetColor(0x181818FF));
