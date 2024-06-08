@@ -62,8 +62,7 @@ int main(){
     PRINT_TEXTURE("PLATFORM", textures.items[PLATFORM]);
     Player player = {
         .position = (Vector2){w/2.0f, h/2.0f},
-        .width= 20.0f,
-        .height= 30.0f,
+        .size = (Vector2) {20.0f, 30.0f},
         .color = RED,
         .sprite = &textures.items[PLAYER]
     };
@@ -98,7 +97,7 @@ int main(){
 
             if(check_door_collision(&player, door)){
                 DrawText("^", door.position.x + door.size.x / 2 - MeasureText("^", 70) / 2.0f, door.position.y - 70/2.0f - 10, 70, WHITE);
-                if(IsKeyPressed(KEY_UP)){
+                if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
                     game.game_over = true;
                 }
             }

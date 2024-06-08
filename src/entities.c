@@ -20,7 +20,7 @@ void draw_door(Door door){
 
 void draw_player(Player player) {
     if(player.sprite->width <= 0 || player.sprite->height <= 0){
-        DrawRectangleV(player.position, (Vector2) {player.width, player.height}, player.color);
+        DrawRectangleV(player.position, (Vector2) {player.size.x, player.size.y}, player.color);
     } else {
         if(IsTextureReady(*player.sprite)){
             DrawTextureV(*player.sprite, player.position, WHITE);

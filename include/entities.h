@@ -8,8 +8,7 @@
 typedef struct {
     Vector2 position;
     Vector2 velocity;
-    float width;
-    float height;
+    Vector2 size;
     Color color;
     Texture2D* sprite;
     int is_grounded;

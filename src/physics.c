@@ -7,9 +7,9 @@
 #include "entities.h"
 
 #define PLAYER_TOP(player) (player->position.y)
-#define PLAYER_BOTTOM(player) (player->position.y + player->height)
+#define PLAYER_BOTTOM(player) (player->position.y + player->size.y)
 #define PLAYER_LEFT(player) (player->position.x)
-#define PLAYER_RIGHT(player) (player->position.x + player->width)
+#define PLAYER_RIGHT(player) (player->position.x + player->size.x)
 
 #define PLATFORM_TOP(platform) (platform->start.y - platform->thickness / 2.0f)
 #define PLATFORM_BOTTOM(platform) (platform->start.y + platform->thickness / 2.0f)
@@ -49,7 +49,7 @@ void resolve_platform_collision(Player* player, Platform* platform) {
 
     if (minOverlap == overlapTop) {
         // Player is above the platform
-        player->position.y = PLATFORM_TOP(platform) - player->height;
+        player->position.y = PLATFORM_TOP(platform) - player->size.y;
         player->velocity.y = 0;
         player->is_grounded = true;
     } else if (minOverlap == overlapBottom) {
@@ -58,7 +58,7 @@ void resolve_platform_collision(Player* player, Platform* platform) {
         player->velocity.y = 0;
     } else if (minOverlap == overlapLeft) {
         // Player is colliding from the left
-        player->position.x = PLATFORM_LEFT(platform) - player->width;
+        player->position.x = PLATFORM_LEFT(platform) - player->size.x;
         player->velocity.x = 0;
     } else if (minOverlap == overlapRight) {
         // Player is colliding from the right
@@ -102,10 +102,10 @@ void update_player(Player* player, float windowWidth, float windowHeight) {
     player->position.x += player->velocity.x * DT;
 
     // Clamp player position within the screen bounds
-    player->position = Vector2Clamp(player->position, (Vector2){0}, (Vector2){windowWidth - player->width, windowHeight - player->height});
+    player->position = Vector2Clamp(player->position, (Vector2){0}, (Vector2){windowWidth - player->size.x, windowHeight - player->size.y});
 
-    if (player->position.y >= windowHeight - player->height) {
-        player->position.y = windowHeight - player->height;
+    if (player->position.y >= windowHeight - player->size.y) {
+        player->position.y = windowHeight - player->size.y;
         player->velocity.y = 0;
         player->is_grounded = true;
     }
