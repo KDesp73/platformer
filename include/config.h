@@ -12,11 +12,6 @@
 #define SCREEN_WIDTH 1600
 #define SCREEN_HEIGHT 900
 
-#define GRAVITY 800.0f
-#define JUMP_FORCE 400.0f
-#define PLAYER_STEP 400.0f
-
-
 
 typedef struct {
     int is_fullscreen;

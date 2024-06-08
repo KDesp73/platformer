@@ -1,4 +1,3 @@
-
 #include "physics.h"
 #include "config.h"
 #include "raylib.h"
@@ -25,7 +24,7 @@
 #define PLAYER_IS_INSIDE_PLATFORM(player, platform) \
     (PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) && PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform))
 
-int check_door_collision(Player* player, Door door){
+int check_door_collision(Player* player, Door door) {
     return (PLAYER_LEFT(player) <= DOOR_RIGHT(door)) &&
         (PLAYER_RIGHT(player) >= DOOR_LEFT(door)) && 
         (PLAYER_TOP(player) <= DOOR_BOTTOM(door)) &&
@@ -40,36 +39,48 @@ int check_platform_collision(Player* player, Platform* platform) {
 }
 
 void resolve_platform_collision(Player* player, Platform* platform) {
-    if(PLAYER_TOP(player) < PLATFORM_TOP(platform)) { // Player is above the platform
+    float overlapTop = PLAYER_BOTTOM(player) - PLATFORM_TOP(platform);
+    float overlapBottom = PLATFORM_BOTTOM(platform) - PLAYER_TOP(player);
+    float overlapLeft = PLAYER_RIGHT(player) - PLATFORM_LEFT(platform);
+    float overlapRight = PLATFORM_RIGHT(platform) - PLAYER_LEFT(player);
+    
+    // Determine the direction of collision
+    float minOverlap = fmin(fmin(overlapTop, overlapBottom), fmin(overlapLeft, overlapRight));
+
+    if (minOverlap == overlapTop) {
+        // Player is above the platform
         player->position.y = PLATFORM_TOP(platform) - player->height;
         player->velocity.y = 0;
         player->is_grounded = true;
-    } else if(PLAYER_LEFT(player) < PLATFORM_LEFT(platform)){ // Player is colliding from the left
-        player->position.x = PLATFORM_LEFT(platform) - player->width; 
+    } else if (minOverlap == overlapBottom) {
+        // Player is below the platform
+        player->position.y = PLATFORM_BOTTOM(platform);
+        player->velocity.y = 0;
+    } else if (minOverlap == overlapLeft) {
+        // Player is colliding from the left
+        player->position.x = PLATFORM_LEFT(platform) - player->width;
         player->velocity.x = 0;
-    } else if(PLAYER_RIGHT(player) > PLATFORM_RIGHT(platform)){ // Player is colliding from the right
+    } else if (minOverlap == overlapRight) {
+        // Player is colliding from the right
         player->position.x = PLATFORM_RIGHT(platform);
         player->velocity.x = 0;
-    } else if(PLAYER_BOTTOM(player) > PLATFORM_BOTTOM(platform)){ // Player is under the platform
-        player->position.y = Clamp(player->position.y, PLATFORM_BOTTOM(platform),  GetScreenHeight());
-    } 
+    }
 }
 
 void check_and_resolve_platform_collisions(Player* player, PlatformCollection platforms) {
-    if(PLAYER_BOTTOM(player) < GetScreenHeight())
-        player->is_grounded = false;
+     if(PLAYER_BOTTOM(player) < GetScreenHeight())
+        player->is_grounded = false;  // Reset grounding status
     for (size_t i = 0; i < platforms.count; ++i) {
         Platform* platform = platforms.items[i];
         if (check_platform_collision(player, platform)) {
             resolve_platform_collision(player, platform);
-        } else {
         }
     }
 }
 
 void update_player(Player* player, float windowWidth, float windowHeight) {
-    if (player->is_grounded && IsKeyDown(KEY_SPACE)) {
-        player->velocity.y += -JUMP_FORCE;
+    if (player->is_grounded && IsKeyPressed(KEY_SPACE)) {
+        player->velocity.y = -JUMP_FORCE;
         player->is_grounded = false;
     }
 
@@ -84,15 +95,19 @@ void update_player(Player* player, float windowWidth, float windowHeight) {
     } else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
         player->velocity.x = PLAYER_STEP;
     } else {
-        player->velocity.x = 0;
+        // Apply friction when no input is given
+        player->velocity.x *= FRICTION;
     }
 
     player->position.x += player->velocity.x * DT;
 
-    player->position = Vector2Clamp(player->position, (Vector2) {0}, (Vector2) {windowWidth - player->width, windowHeight - player->height});
+    // Clamp player position within the screen bounds
+    player->position = Vector2Clamp(player->position, (Vector2){0}, (Vector2){windowWidth - player->width, windowHeight - player->height});
+
     if (player->position.y >= windowHeight - player->height) {
         player->position.y = windowHeight - player->height;
         player->velocity.y = 0;
         player->is_grounded = true;
     }
 }
+
