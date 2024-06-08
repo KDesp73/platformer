@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "entities.h"
+#include "game.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "physics.h"
@@ -42,6 +43,12 @@ int main(){
 
     int w = GetScreenWidth();
     int h = GetScreenHeight();
+
+    Game game = {
+        .level = 1,
+        .game_over = false
+    };
+
     Player player = {
         .position = (Vector2){w/2.0f, h/2.0f},
         .width= 20.0f,
@@ -64,21 +71,40 @@ int main(){
         NULL // Teriminate the list
     );
 
+    Door door = {
+        .position = (Vector2) {150, 300-60-10},
+        .size = (Vector2) {40.0f, 60.0f},
+        .color = GREEN,
+    };
+
     DEBU("count: %zu", platforms.count);
 
     while(!WindowShouldClose()){
-        update_player(&player, w, h);
-        check_and_resolve_collisions(&player, platforms);
-
-        ClearBackground(GetColor(0x181818FF));
         BeginDrawing();
+        if(!game.game_over){
+            update_player(&player, w, h);
+            check_and_resolve_platform_collisions(&player, platforms);
+            if(check_door_collision(&player, door) && IsKeyPressed(KEY_UP)){
+                game.game_over = true;
+            }
 
-        draw_player(player);
-        draw_platforms(platforms);
+            ClearBackground(GetColor(0x181818FF));
+
+            draw_door(door);
+            draw_player(player);
+            draw_platforms(platforms);
 
 #ifdef DEBUG
-        print_player_position(player, 10, 10);
+            print_player_position(player, 10, 10);
 #endif
+        } else {
+            ClearBackground(GetColor(0x181818FF));
+            Cstr text = "LEVEL COMPLETE";
+            int font_size = 100;
+            int size = MeasureText(text, font_size);
+            DrawText(text, w/2 - size / 2, h/2 - 100/2, font_size, WHITE);
+        }
+
 
         EndDrawing();
     }

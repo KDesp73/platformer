@@ -8,6 +8,9 @@
 #include "clib.h"
 #include "raylib.h"
 
+void draw_door(Door door){
+    DrawRectangleV(door.position, (Vector2) {door.size.x, door.size.y}, door.color);
+}
 
 void draw_player(Player player) {
     DrawRectangleV(player.position, (Vector2) {player.width, player.height}, player.color);

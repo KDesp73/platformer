@@ -22,6 +22,12 @@ typedef struct {
 } Platform;
 
 typedef struct {
+    Vector2 position;
+    Vector2 size;
+    Color color;
+} Door;
+
+typedef struct {
     Platform** items;
     size_t count;
 } PlatformCollection;
@@ -34,6 +40,7 @@ void free_platforms(PlatformCollection platforms);
 void draw_player(Player player);
 void draw_platform(Platform platform);
 void draw_platforms(PlatformCollection collection);
+void draw_door(Door door);
 
 void print_player_position(Player player, int x, int y);
 void print_platform_position(Platform platform, int x, int y);

@@ -17,17 +17,29 @@
 #define PLATFORM_LEFT(platform) (platform->start.x)
 #define PLATFORM_RIGHT(platform) (platform->start.x + platform->length)
 
+#define DOOR_LEFT(door) (door.position.x)
+#define DOOR_RIGHT(door) (door.position.x + door.size.x)
+#define DOOR_TOP(door) (door.position.y)
+#define DOOR_BOTTOM(door) (door.position.y + door.size.y)
+
 #define PLAYER_IS_INSIDE_PLATFORM(player, platform) \
     (PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) && PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform))
 
-int check_collision(Player* player, Platform* platform) {
+int check_door_collision(Player* player, Door door){
+    return (PLAYER_LEFT(player) <= DOOR_RIGHT(door)) &&
+        (PLAYER_RIGHT(player) >= DOOR_LEFT(door)) && 
+        (PLAYER_TOP(player) <= DOOR_BOTTOM(door)) &&
+        (PLAYER_BOTTOM(player) >= DOOR_TOP(door));
+}
+
+int check_platform_collision(Player* player, Platform* platform) {
     return (PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform) &&
              PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) &&
              PLAYER_TOP(player) <= PLATFORM_BOTTOM(platform) &&
              PLAYER_BOTTOM(player) >= PLATFORM_TOP(platform));
 }
 
-void resolve_collision(Player* player, Platform* platform) {
+void resolve_platform_collision(Player* player, Platform* platform) {
     if(PLAYER_TOP(player) < PLATFORM_TOP(platform)) { // Player is above the platform
         player->position.y = PLATFORM_TOP(platform) - player->height;
         player->velocity.y = 0;
@@ -43,13 +55,13 @@ void resolve_collision(Player* player, Platform* platform) {
     } 
 }
 
-void check_and_resolve_collisions(Player* player, PlatformCollection platforms) {
+void check_and_resolve_platform_collisions(Player* player, PlatformCollection platforms) {
     if(PLAYER_BOTTOM(player) < GetScreenHeight())
         player->is_grounded = false;
     for (size_t i = 0; i < platforms.count; ++i) {
         Platform* platform = platforms.items[i];
-        if (check_collision(player, platform)) {
-            resolve_collision(player, platform);
+        if (check_platform_collision(player, platform)) {
+            resolve_platform_collision(player, platform);
         } else {
         }
     }
