@@ -19,6 +19,9 @@ typedef struct {
     size_t count; 
 } Textures;
 
+#define PRINT_TEXTURE(tag, texture) \
+    printf("[%s] width: %d, height: %d, id: %d, mipmaps: %d, format: %d\n", tag, texture.width, texture.height, texture.id, texture.mipmaps, texture.format)
+
 Textures make_textures(Cstr first, ...);
 void load_textures(Textures textures);
 void unload_textures(Textures textures);

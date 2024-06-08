@@ -9,7 +9,7 @@
 #include "raylib.h"
 
 void draw_door(Door door){
-    if(door.sprite->width == 0){
+    if(door.sprite->width <= 0 || door.sprite->height <= 0){
         DrawRectangleV(door.position, (Vector2) {door.size.x, door.size.y}, door.color);
     } else {
         if(IsTextureReady(*door.sprite)){
@@ -19,7 +19,7 @@ void draw_door(Door door){
 }
 
 void draw_player(Player player) {
-    if(player.sprite->width == 0){
+    if(player.sprite->width <= 0 || player.sprite->height <= 0){
         DrawRectangleV(player.position, (Vector2) {player.width, player.height}, player.color);
     } else {
         if(IsTextureReady(*player.sprite)){
@@ -29,7 +29,7 @@ void draw_player(Player player) {
 }
 
 void draw_platform(Platform platform, Texture2D sprite){
-    if (sprite.width == 0){
+    if (sprite.width <= 0 || sprite.height <= 0){
         DrawLineEx(platform.start, (Vector2) {platform.start.x + platform.length, platform.start.y}, platform.thickness, platform.color);
     } else {
         if(IsTextureReady(sprite)){

@@ -36,7 +36,7 @@ int main(){
     
     // TODO: Save and Load from file
     Settings settings = {
-        .is_fullscreen = 1
+        .is_fullscreen = 0
     };
 
     INFO("is fullscreen: %d", settings.is_fullscreen);
@@ -56,7 +56,10 @@ int main(){
         "assets/dirt.png",
         NULL // Teriminate the list
     );
-    
+
+    PRINT_TEXTURE("PLAYER", textures.items[PLAYER]);
+    PRINT_TEXTURE("DOOR", textures.items[DOOR]);
+    PRINT_TEXTURE("PLATFORM", textures.items[PLATFORM]);
     Player player = {
         .position = (Vector2){w/2.0f, h/2.0f},
         .width= 20.0f,
@@ -116,10 +119,11 @@ int main(){
         }
         EndDrawing();
     }
-    EndMode2D();
 
     free_platforms(platforms);
     unload_textures(textures);
+
+    EndMode2D();
     CloseWindow();
 
     return 0;
