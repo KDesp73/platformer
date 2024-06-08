@@ -28,14 +28,22 @@ void draw_player(Player player) {
     }
 }
 
-void draw_platform(Platform platform){
-    DrawLineEx(platform.start, (Vector2) {platform.start.x + platform.length, platform.start.y}, platform.thickness, platform.color);
+void draw_platform(Platform platform, Texture2D sprite){
+    if (sprite.width == 0){
+        DrawLineEx(platform.start, (Vector2) {platform.start.x + platform.length, platform.start.y}, platform.thickness, platform.color);
+    } else {
+        if(IsTextureReady(sprite)){
+            for(size_t i = 0; i < platform.length / sprite.width; ++i){
+                DrawTextureV(sprite, (Vector2) {platform.start.x + (i * sprite.width), platform.start.y - platform.thickness / 2.0f}, WHITE);
+            }
+        }
+    }
 }
 
-void draw_platforms(PlatformCollection collection) {
+void draw_platforms(PlatformCollection collection, Texture2D sprite) {
     for (size_t i = 0; i < collection.count; ++i) {
         if(collection.items[i] != NULL)
-            draw_platform(*collection.items[i]);
+            draw_platform(*collection.items[i], sprite);
     }
 }
 

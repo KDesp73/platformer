@@ -53,6 +53,7 @@ int main(){
     Textures textures = make_textures(
         "assets/cat.png",
         "assets/door.png",
+        "assets/dirt.png",
         NULL // Teriminate the list
     );
     
@@ -105,7 +106,7 @@ int main(){
 
             draw_door(door);
             draw_player(player);
-            draw_platforms(platforms);
+            draw_platforms(platforms, textures.items[PLATFORM]);
         } else {
             ClearBackground(GetColor(0x181818FF));
             Cstr text = TextFormat("LEVEL %zu COMPLETE", game.level);

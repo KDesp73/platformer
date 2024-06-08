@@ -41,8 +41,8 @@ void add_platform(Platform* platform, PlatformCollection* collection);
 void free_platforms(PlatformCollection platforms);
 
 void draw_player(Player player);
-void draw_platform(Platform platform);
-void draw_platforms(PlatformCollection collection);
+void draw_platform(Platform platform, Texture2D sprite);
+void draw_platforms(PlatformCollection collection, Texture2D sprite);
 void draw_door(Door door);
 
 void print_player_position(Player player, int x, int y);
