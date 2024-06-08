@@ -11,6 +11,7 @@ typedef struct {
     float width;
     float height;
     Color color;
+    Texture2D* sprite;
     int is_grounded;
 } Player;
 
@@ -19,12 +20,14 @@ typedef struct {
     float length;
     float thickness;
     Color color;
+    Texture2D* sprite;
 } Platform;
 
 typedef struct {
     Vector2 position;
     Vector2 size;
     Color color;
+    Texture2D* sprite;
 } Door;
 
 typedef struct {

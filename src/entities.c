@@ -9,11 +9,23 @@
 #include "raylib.h"
 
 void draw_door(Door door){
-    DrawRectangleV(door.position, (Vector2) {door.size.x, door.size.y}, door.color);
+    if(door.sprite->width == 0){
+        DrawRectangleV(door.position, (Vector2) {door.size.x, door.size.y}, door.color);
+    } else {
+        if(IsTextureReady(*door.sprite)){
+            DrawTextureV(*door.sprite, door.position, WHITE);
+        }  
+    }
 }
 
 void draw_player(Player player) {
-    DrawRectangleV(player.position, (Vector2) {player.width, player.height}, player.color);
+    if(player.sprite->width == 0){
+        DrawRectangleV(player.position, (Vector2) {player.width, player.height}, player.color);
+    } else {
+        if(IsTextureReady(*player.sprite)){
+            DrawTextureV(*player.sprite, player.position, WHITE);
+        } 
+    }
 }
 
 void draw_platform(Platform platform){

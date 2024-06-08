@@ -49,11 +49,14 @@ int main(){
         .game_over = false
     };
 
+    Texture2D cat_texture = LoadTexture("assets/cat.png");
+    Texture2D door_texture = LoadTexture("assets/door.png");
     Player player = {
         .position = (Vector2){w/2.0f, h/2.0f},
         .width= 20.0f,
         .height= 30.0f,
-        .color = RED
+        .color = RED,
+        .sprite = &cat_texture
     };
 
     PlatformCollection platforms = make_platform_collection(
@@ -75,6 +78,7 @@ int main(){
         .position = (Vector2) {150, 300-60-10},
         .size = (Vector2) {40.0f, 60.0f},
         .color = GREEN,
+        .sprite = &door_texture
     };
 
     DEBU("count: %zu", platforms.count);
@@ -114,6 +118,8 @@ int main(){
     }
 
     free_platforms(platforms);
+    UnloadTexture(cat_texture);
+    UnloadTexture(door_texture);
     CloseWindow();
 
     return 0;
