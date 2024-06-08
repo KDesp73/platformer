@@ -53,9 +53,9 @@ int main(){
     Textures textures = make_textures(
         "assets/cat.png",
         "assets/door.png",
-        NULL
+        NULL // Teriminate the list
     );
-
+    
     Player player = {
         .position = (Vector2){w/2.0f, h/2.0f},
         .width= 20.0f,
@@ -113,10 +113,9 @@ int main(){
             int size = MeasureText(text, font_size);
             DrawText(text, w/2 - size / 2, h/2 - 100/2, font_size, WHITE);
         }
-
-
         EndDrawing();
     }
+    EndMode2D();
 
     free_platforms(platforms);
     unload_textures(textures);

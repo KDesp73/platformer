@@ -11,6 +11,7 @@ typedef enum {
     DOOR,
     PLATFORM,
     BACKGROUND,
+    TEXTURES_COUNT
 } TextureId;
 
 typedef struct {
