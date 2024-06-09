@@ -22,8 +22,7 @@ typedef struct {
 #define PRINT_TEXTURE(tag, textures) \
     printf("[%s] width: %d, height: %d, id: %d, mipmaps: %d, format: %d\n", #tag, textures.items[tag].width, textures.items[tag].height, textures.items[tag].id, textures.items[tag].mipmaps, textures.items[tag].format)
 
-Textures make_textures(Cstr first, ...);
-void load_textures(Textures textures);
+Textures load_textures(Cstr first, ...);
 void unload_textures(Textures textures);
 
 #endif // TEXTURES_H

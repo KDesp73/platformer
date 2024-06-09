@@ -50,7 +50,7 @@ int main(){
         .game_over = false
     };
 
-    Textures textures = make_textures(
+    Textures textures = load_textures(
         "assets/cat.png",
         "assets/door.png",
         "assets/dirt.png",

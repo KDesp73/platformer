@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-Textures make_textures(Cstr first, ...) {
+Textures load_textures(Cstr first, ...) {
     Textures result = {0};
 
     result.items = (Texture2D*) malloc(sizeof(Texture2D) * TEXTURES_COUNT);
