@@ -1,0 +1,7 @@
+TODO: level builder
+TODO: settings
+TODO: home screen
+TODO: menu
+TODO: load level from file
+TODO: better assets
+TODO: background pixelart

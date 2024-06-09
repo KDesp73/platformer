@@ -2,6 +2,7 @@
 #include "config.h"
 #include "raylib.h"
 #include "raymath.h"
+#include <assert.h>
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
 #include "entities.h"
@@ -32,6 +33,9 @@ int check_door_collision(Player* player, Door door) {
 }
 
 int check_platform_collision(Player* player, Platform* platform) {
+    assert(platform != NULL);
+    assert(player != NULL);
+
     return (PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform) &&
              PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) &&
              PLAYER_TOP(player) <= PLATFORM_BOTTOM(platform) &&

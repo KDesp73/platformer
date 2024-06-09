@@ -57,9 +57,9 @@ int main(){
         NULL // Teriminate the list
     );
 
-    PRINT_TEXTURE("PLAYER", textures.items[PLAYER]);
-    PRINT_TEXTURE("DOOR", textures.items[DOOR]);
-    PRINT_TEXTURE("PLATFORM", textures.items[PLATFORM]);
+    PRINT_TEXTURE(PLAYER, textures);
+    PRINT_TEXTURE(DOOR, textures);
+    PRINT_TEXTURE(PLATFORM, textures);
     Player player = {
         .position = (Vector2){w/2.0f, h/2.0f},
         .size = (Vector2) {20.0f, 30.0f},
@@ -67,20 +67,32 @@ int main(){
         .sprite = &textures.items[PLAYER]
     };
 
-    PlatformCollection platforms = make_platform_collection(
-        make_platform((Vector2) {100, 300}, 200, 20, WHITE),
-        make_platform((Vector2) {400, 300}, 200, 20, WHITE),
-        make_platform((Vector2) {500, 400}, 200, 20, WHITE),
-        make_platform((Vector2) {800, 400}, 200, 20, WHITE),
-        make_platform((Vector2) {100, 800}, 200, 20, WHITE),
-        make_platform((Vector2) {200, 700}, 200, 20, WHITE),
-        make_platform((Vector2) {300, 600}, 200, 20, WHITE),
-        make_platform((Vector2) {900, 500}, 200, 20, WHITE),
-        make_platform((Vector2) {600, 500}, 200, 20, WHITE),
-        make_platform((Vector2) {w/2.0f, h-20}, 200, 20, WHITE),
-        make_platform((Vector2) {0, h}, 200, 20, WHITE),
-        NULL // Teriminate the list
-    );
+    // PlatformCollection platforms = make_platform_collection(
+    //     make_platform((Vector2) {100, 300}, 200, 20, WHITE),
+    //     make_platform((Vector2) {400, 300}, 200, 20, WHITE),
+    //     make_platform((Vector2) {500, 400}, 200, 20, WHITE),
+    //     make_platform((Vector2) {800, 400}, 200, 20, WHITE),
+    //     make_platform((Vector2) {100, 800}, 200, 20, WHITE),
+    //     make_platform((Vector2) {200, 700}, 200, 20, WHITE),
+    //     make_platform((Vector2) {300, 600}, 200, 20, WHITE),
+    //     make_platform((Vector2) {900, 500}, 200, 20, WHITE),
+    //     make_platform((Vector2) {600, 500}, 200, 20, WHITE),
+    //     make_platform((Vector2) {w/2.0f, h-20}, 200, 20, WHITE),
+    //     make_platform((Vector2) {0, h}, 200, 20, WHITE),
+    //     NULL // Teriminate the list
+    // );
+
+    PlatformCollection platforms = make_platform_collection_empty(12);
+    add_platform(make_platform((Vector2) {0, h-10}, w, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {100, 300}, 200, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {400, 300}, 200, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {500, 400}, 200, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {800, 400}, 200, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {100, 800}, 200, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {200, 700}, 200, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {300, 600}, 200, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {900, 500}, 200, 20, WHITE), &platforms);
+    add_platform(make_platform((Vector2) {600, 500}, 200, 20, WHITE), &platforms);
 
     Door door = {
         .position = (Vector2) {150, 300-60-10},

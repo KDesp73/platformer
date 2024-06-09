@@ -32,10 +32,12 @@ typedef struct {
 typedef struct {
     Platform** items;
     size_t count;
+    size_t capacity;
 } PlatformCollection;
 
 Platform* make_platform(Vector2 start, float length, float thickness, Color color);
 PlatformCollection make_platform_collection(Platform* first, ...);
+PlatformCollection make_platform_collection_empty(size_t capacity);
 void add_platform(Platform* platform, PlatformCollection* collection);
 void free_platforms(PlatformCollection platforms);
 

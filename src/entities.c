@@ -70,6 +70,13 @@ Platform* make_platform(Vector2 start, float length, float thickness, Color colo
     return platform;
 }
 
+PlatformCollection make_platform_collection_empty(size_t capacity){
+    PlatformCollection result = {.capacity = capacity};
+    result.items = (Platform**) malloc(sizeof(Platform) * capacity);
+    
+    return result;
+}
+
 PlatformCollection make_platform_collection(Platform* first, ...) {
     PlatformCollection result = {0};
     if (first == NULL) {
@@ -84,6 +91,7 @@ PlatformCollection make_platform_collection(Platform* first, ...) {
         result.count += 1;
     }
     va_end(args);
+    result.capacity = result.count;
 
     result.items = (Platform**) malloc(sizeof(Platform*) * result.count);
     if (result.items == NULL) {
@@ -105,6 +113,11 @@ PlatformCollection make_platform_collection(Platform* first, ...) {
 
 void add_platform(Platform* platform, PlatformCollection* collection){
     assert(platform != NULL);
+    assert(collection->items != NULL);
+
+    if(collection->count >= collection->capacity) {
+        PANIC("Max capacity");
+    }
 
     collection->items[collection->count++] = platform;
 }
