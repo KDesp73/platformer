@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "entities.h"
 #include "game.h"
+#include "level.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "physics.h"
@@ -27,6 +28,10 @@
     } while(0); 
 
 
+void DrawCenteredText(Cstr text, int y, int fontSize, Color color){
+    int size = MeasureText(text, fontSize);
+    DrawText(text, GetScreenWidth() / 2.0f - size / 2.0f, y - fontSize / 2.0f, fontSize, color);
+}
 
 int main(){
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
@@ -47,13 +52,15 @@ int main(){
 
     Game game = {
         .level = 1,
-        .game_over = false
+        .is_over = false
     };
 
     Textures textures = load_textures(
+#ifndef NO_ASSETS
         "assets/player-30x50.png",
         "assets/door-50x80.png",
         "assets/wood-25x25.png",
+#endif
         NULL // Teriminate the list
     );
 
@@ -61,45 +68,75 @@ int main(){
     PRINT_TEXTURE(DOOR, textures);
     PRINT_TEXTURE(PLATFORM, textures);
 
-    Player player = {
-        .position = (Vector2){w/2.0f, h/2.0f},
-        .size = (Vector2) {30.0f, 50.0f},
-        .color = RED,
-        .sprite = &textures.items[PLAYER],
-        .status = IDLE
+    Level level = {
+        .which = 1,
+        .player = {
+            .position = (Vector2){w/2.0f, h/2.0f},
+            .size = (Vector2) {30.0f, 50.0f},
+            .color = RED,
+            .sprite = &textures.items[PLAYER],
+            .status = IDLE
+        },
+        .platforms = make_platform_collection(
+            make_platform((Vector2) {0, h-10}, w, 25, WHITE),
+            make_platform((Vector2) {600, 500}, 150, 25, WHITE),
+            make_platform((Vector2) {100, 300}, 150, 25, WHITE),
+            make_platform((Vector2) {400, 300}, 150, 25, WHITE),
+            make_platform((Vector2) {500, 400}, 150, 25, WHITE),
+            make_platform((Vector2) {800, 400}, 150, 25, WHITE),
+            make_platform((Vector2) {100, 800}, 150, 25, WHITE),
+            make_platform((Vector2) {200, 700}, 150, 25, WHITE),
+            make_platform((Vector2) {900, 500}, 150, 25, WHITE),
+            make_platform((Vector2) {300, 600}, 150, 25, WHITE),
+            NULL // IMPORTANT!
+        ),
+        .door = {
+            .size = (Vector2) {50.0f, 80.0f},
+            .color = GREEN,
+            .sprite = &textures.items[DOOR]
+        }
     };
 
-    PlatformCollection platforms = make_platform_collection(
-        make_platform((Vector2) {0, h-10}, w, 25, WHITE),
-        make_platform((Vector2) {600, 500}, 150, 25, WHITE),
-        make_platform((Vector2) {100, 300}, 150, 25, WHITE),
-        make_platform((Vector2) {400, 300}, 150, 25, WHITE),
-        make_platform((Vector2) {500, 400}, 150, 25, WHITE),
-        make_platform((Vector2) {800, 400}, 150, 25, WHITE),
-        make_platform((Vector2) {100, 800}, 150, 25, WHITE),
-        make_platform((Vector2) {200, 700}, 150, 25, WHITE),
-        make_platform((Vector2) {900, 500}, 150, 25, WHITE),
-        make_platform((Vector2) {300, 600}, 150, 25, WHITE),
-        NULL // IMPORTANT!
-    );
+    // Player player = {
+    //     .position = (Vector2){w/2.0f, h/2.0f},
+    //     .size = (Vector2) {30.0f, 50.0f},
+    //     .color = RED,
+    //     .sprite = &textures.items[PLAYER],
+    //     .status = IDLE
+    // };
 
-    Door door = {
-        .size = (Vector2) {50.0f, 80.0f},
-        .color = GREEN,
-        .sprite = &textures.items[DOOR]
-    };
-    place_door_on_platform(&door, *platforms.items[2]);
 
+    // PlatformCollection platforms = make_platform_collection(
+    //     make_platform((Vector2) {0, h-10}, w, 25, WHITE),
+    //     make_platform((Vector2) {600, 500}, 150, 25, WHITE),
+    //     make_platform((Vector2) {100, 300}, 150, 25, WHITE),
+    //     make_platform((Vector2) {400, 300}, 150, 25, WHITE),
+    //     make_platform((Vector2) {500, 400}, 150, 25, WHITE),
+    //     make_platform((Vector2) {800, 400}, 150, 25, WHITE),
+    //     make_platform((Vector2) {100, 800}, 150, 25, WHITE),
+    //     make_platform((Vector2) {200, 700}, 150, 25, WHITE),
+    //     make_platform((Vector2) {900, 500}, 150, 25, WHITE),
+    //     make_platform((Vector2) {300, 600}, 150, 25, WHITE),
+    //     NULL // IMPORTANT!
+    // );
+
+    // Door door = {
+    //     .size = (Vector2) {50.0f, 80.0f},
+    //     .color = GREEN,
+    //     .sprite = &textures.items[DOOR]
+    // };
+
+    place_door_on_platform(&level.door, *level.platforms.items[2]);
     while(!WindowShouldClose()){
         BeginDrawing();
-        if(!game.game_over){
-            update_player(&player, w, h);
-            check_and_resolve_platform_collisions(&player, platforms);
+        if(!game.is_over){
+            update_player(&level.player, w, h);
+            check_and_resolve_platform_collisions(&level.player, level.platforms);
 
-            if(check_door_collision(&player, door)){
-                DrawText("^", door.position.x + door.size.x / 2 - MeasureText("^", 70) / 2.0f, door.position.y - 70/2.0f - 10, 70, WHITE);
+            if(check_door_collision(&level.player, level.door)){
+                DrawText("^", level.door.position.x + level.door.size.x / 2 - MeasureText("^", 70) / 2.0f, level.door.position.y - 70/2.0f - 10, 70, WHITE);
                 if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
-                    game.game_over = true;
+                    game.is_over = true;
                 }
             }
 
@@ -107,20 +144,23 @@ int main(){
 
             DrawText(TextFormat("Level %zu", game.level), 20, 20, 30, WHITE);
 
-            draw_door(door);
-            draw_player(player);
-            draw_platforms(platforms, textures.items[PLATFORM]);
+            draw_level(level, textures);
         } else {
             ClearBackground(GetColor(0x181818FF));
-            Cstr text = TextFormat("LEVEL %zu COMPLETE", game.level);
-            int font_size = 100;
-            int size = MeasureText(text, font_size);
-            DrawText(text, w/2 - size / 2, h/2 - 100/2, font_size, WHITE);
+            Cstr level_complete = TextFormat("LEVEL %zu COMPLETE", game.level);
+            
+            DrawCenteredText(level_complete, h/2 - 100, 100, WHITE);
+            DrawCenteredText("Press Enter to continue", h/2 + 100, 70, WHITE);
+
+            if(IsKeyPressed(KEY_ENTER)){
+                game.level++;
+                game.is_over = 0;
+            }
         }
         EndDrawing();
     }
 
-    free_platforms(platforms);
+    free_platforms(level.platforms);
     unload_textures(textures);
 
     EndMode2D();
@@ -128,3 +168,4 @@ int main(){
 
     return 0;
 }
+

@@ -5,7 +5,7 @@
 
 typedef struct {
     size_t level;
-    int game_over;
+    int is_over;
 } Game;
 
 #endif // GAME_H
