@@ -9,8 +9,10 @@
 
 #define FPS 60
 #define DT GetFrameTime()
-#define SCREEN_WIDTH 1600
-#define SCREEN_HEIGHT 900
+#define MIN_SCREEN_WIDTH 1600
+#define MIN_SCREEN_HEIGHT 900
+#define SCREEN_WIDTH GetScreenWidth()
+#define SCREEN_HEIGHT GetScreenHeight()
 
 
 typedef struct {

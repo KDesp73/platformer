@@ -31,11 +31,11 @@ void draw_player(Player player) {
             // DrawTextureV(*player.sprite, player.position, WHITE);
             switch (player.status) {
                 case RUNNING_LEFT:
-                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
+                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, -player.size.x, player.size.y}, player.position, WHITE);
                     break;
                 case IDLE:
                 case RUNNING_RIGHT:
-                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, -player.size.x, player.size.y}, player.position, WHITE);
+                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
                     break;
                 default:
                     ERRO("Unknown status");
