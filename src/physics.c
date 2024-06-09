@@ -96,8 +96,10 @@ void update_player(Player* player, float windowWidth, float windowHeight) {
 
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
         player->velocity.x = -PLAYER_STEP;
+        player->status = RUNNING_LEFT;
     } else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
         player->velocity.x = PLAYER_STEP;
+        player->status = RUNNING_RIGHT;
     } else {
         // Apply friction when no input is given
         player->velocity.x *= FRICTION;

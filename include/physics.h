@@ -5,7 +5,7 @@
 #define GRAVITY 800.0f
 #define JUMP_FORCE 400.0f
 #define PLAYER_STEP 400.0f
-#define FRICTION 0.7f
+#define FRICTION 0.8f
 
 int check_platform_collision(Player* player, Platform* platform);
 void resolve_platform_collision(Player* player, Platform* platform);

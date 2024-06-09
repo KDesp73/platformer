@@ -5,11 +5,11 @@
 #include "raymath.h"
 #include "physics.h"
 #include "textures.h"
+#include "config.h"
 
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
 
-#include "config.h"
 
 
 #define SET_FULLSCREEN(x) \
@@ -51,55 +51,44 @@ int main(){
     };
 
     Textures textures = load_textures(
-        "assets/cat.png",
-        "assets/door.png",
-        "assets/dirt.png",
+        "assets/player-30x50.png",
+        "assets/door-50x80.png",
+        "assets/wood-25x25.png",
         NULL // Teriminate the list
     );
 
     PRINT_TEXTURE(PLAYER, textures);
     PRINT_TEXTURE(DOOR, textures);
     PRINT_TEXTURE(PLATFORM, textures);
+
     Player player = {
         .position = (Vector2){w/2.0f, h/2.0f},
-        .size = (Vector2) {20.0f, 30.0f},
+        .size = (Vector2) {30.0f, 50.0f},
         .color = RED,
-        .sprite = &textures.items[PLAYER]
+        .sprite = &textures.items[PLAYER],
+        .status = IDLE
     };
 
-    // PlatformCollection platforms = make_platform_collection(
-    //     make_platform((Vector2) {100, 300}, 200, 20, WHITE),
-    //     make_platform((Vector2) {400, 300}, 200, 20, WHITE),
-    //     make_platform((Vector2) {500, 400}, 200, 20, WHITE),
-    //     make_platform((Vector2) {800, 400}, 200, 20, WHITE),
-    //     make_platform((Vector2) {100, 800}, 200, 20, WHITE),
-    //     make_platform((Vector2) {200, 700}, 200, 20, WHITE),
-    //     make_platform((Vector2) {300, 600}, 200, 20, WHITE),
-    //     make_platform((Vector2) {900, 500}, 200, 20, WHITE),
-    //     make_platform((Vector2) {600, 500}, 200, 20, WHITE),
-    //     make_platform((Vector2) {w/2.0f, h-20}, 200, 20, WHITE),
-    //     make_platform((Vector2) {0, h}, 200, 20, WHITE),
-    //     NULL // Teriminate the list
-    // );
-
-    PlatformCollection platforms = make_platform_collection_empty(12);
-    add_platform(make_platform((Vector2) {0, h-10}, w, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {100, 300}, 200, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {400, 300}, 200, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {500, 400}, 200, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {800, 400}, 200, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {100, 800}, 200, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {200, 700}, 200, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {300, 600}, 200, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {900, 500}, 200, 20, WHITE), &platforms);
-    add_platform(make_platform((Vector2) {600, 500}, 200, 20, WHITE), &platforms);
+    PlatformCollection platforms = make_platform_collection(
+        make_platform((Vector2) {0, h-10}, w, 25, WHITE),
+        make_platform((Vector2) {600, 500}, 150, 25, WHITE),
+        make_platform((Vector2) {100, 300}, 150, 25, WHITE),
+        make_platform((Vector2) {400, 300}, 150, 25, WHITE),
+        make_platform((Vector2) {500, 400}, 150, 25, WHITE),
+        make_platform((Vector2) {800, 400}, 150, 25, WHITE),
+        make_platform((Vector2) {100, 800}, 150, 25, WHITE),
+        make_platform((Vector2) {200, 700}, 150, 25, WHITE),
+        make_platform((Vector2) {900, 500}, 150, 25, WHITE),
+        make_platform((Vector2) {300, 600}, 150, 25, WHITE),
+        NULL // IMPORTANT!
+    );
 
     Door door = {
-        .position = (Vector2) {150, 300-60-10},
-        .size = (Vector2) {40.0f, 60.0f},
+        .size = (Vector2) {50.0f, 80.0f},
         .color = GREEN,
         .sprite = &textures.items[DOOR]
     };
+    place_door_on_platform(&door, *platforms.items[2]);
 
     while(!WindowShouldClose()){
         BeginDrawing();

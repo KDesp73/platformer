@@ -18,12 +18,29 @@ void draw_door(Door door){
     }
 }
 
+void place_door_on_platform(Door* door, Platform platform){
+    door->position.x = platform.start.x + platform.length / 2.0f - door->size.x / 2.0f;
+    door->position.y = platform.start.y - door->size.y - platform.thickness / 2.0f;
+}
+
 void draw_player(Player player) {
     if(player.sprite->width <= 0 || player.sprite->height <= 0){
         DrawRectangleV(player.position, (Vector2) {player.size.x, player.size.y}, player.color);
     } else {
         if(IsTextureReady(*player.sprite)){
-            DrawTextureV(*player.sprite, player.position, WHITE);
+            // DrawTextureV(*player.sprite, player.position, WHITE);
+            switch (player.status) {
+                case RUNNING_LEFT:
+                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
+                    break;
+                case IDLE:
+                case RUNNING_RIGHT:
+                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, -player.size.x, player.size.y}, player.position, WHITE);
+                    break;
+                default:
+                    ERRO("Unknown status");
+                    break;
+            }
         } 
     }
 }
@@ -47,12 +64,15 @@ void draw_platforms(PlatformCollection collection, Texture2D sprite) {
     }
 }
 
-void free_platforms(PlatformCollection platforms){
-    for(size_t i = 0; i < platforms.count; ++i){
-        free(platforms.items[i]);
+void free_platforms(PlatformCollection platforms) {
+    for (size_t i = 0; i < platforms.count; ++i) {
+        if (platforms.items[i] != NULL) {
+            free(platforms.items[i]);
+            platforms.items[i] = NULL; // Optional: to avoid dangling pointers
+        }
     }
+    free(platforms.items);
 }
-
 
 Platform* make_platform(Vector2 start, float length, float thickness, Color color){
     Platform* platform = (Platform*) malloc(sizeof(Platform));

@@ -5,6 +5,13 @@
 #include "raylib.h"
 #include "raymath.h"
 
+typedef enum {
+    IDLE,
+    RUNNING_LEFT,
+    RUNNING_RIGHT,
+    JUMPING
+} PlayerStatus;
+
 typedef struct {
     Vector2 position;
     Vector2 velocity;
@@ -12,6 +19,7 @@ typedef struct {
     Color color;
     Texture2D* sprite;
     int is_grounded;
+    int status;
 } Player;
 
 typedef struct {
@@ -45,6 +53,7 @@ void draw_player(Player player);
 void draw_platform(Platform platform, Texture2D sprite);
 void draw_platforms(PlatformCollection collection, Texture2D sprite);
 void draw_door(Door door);
+void place_door_on_platform(Door* door, Platform platform);
 
 void print_player_position(Player player, int x, int y);
 void print_platform_position(Platform platform, int x, int y);
