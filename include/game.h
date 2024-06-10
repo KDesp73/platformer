@@ -12,6 +12,8 @@
 #define DOOR_SIZE (Vector2) {50.0f, 80.0f}
 #define DOOR_COLOR GREEN
 
+#define PLATFORM_HEIGHT 25
+
 typedef struct {
     size_t level;
     int is_over;
@@ -20,6 +22,5 @@ typedef struct {
     Textures textures;
 } Game;
 
-void init_textures(Game* game);
 
 #endif // GAME_H

@@ -8,12 +8,11 @@
 #include "physics.h"
 #include "textures.h"
 #include "config.h"
-#include "graphics.h"
+#include "ui.h"
+#include "builder.h"
 
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
-
-
 
 #define SET_FULLSCREEN(x) \
     do { \
@@ -28,21 +27,19 @@
 
 
 
-int main(){
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
-    SetTargetFPS(FPS);
-    Camera2D camera = { .zoom = 1.0f };
-    BeginMode2D(camera);
-    
-    SET_FULLSCREEN(1);
+void game(){
     Game game = {
         .level = 0,
         .is_over = false,
-        .is_level_complete = false
+        .is_level_complete = false,
+        .textures = load_textures(
+            "assets/images/jess-30x50.png",
+            "assets/images/door-50x80.png",
+            "assets/images/wood-25x25.png",
+            NULL // Teriminate the list
+        )
     };
 
-    init_textures(&game);
-    DEBU("game.textures count: %zu", game.textures.count);
     PRINT_TEXTURE(PLAYER, game.textures);
     PRINT_TEXTURE(DOOR, game.textures);
     PRINT_TEXTURE(PLATFORM, game.textures);
@@ -69,20 +66,22 @@ int main(){
                 make_platform((Vector2) {1200, 1000}, 150, 25, WHITE),
                 NULL // IMPORTANT!
             ), 
-            place_door_on_platform(*make_platform((Vector2) {100, 300}, 150, 25, WHITE)),
+            (Vector2) {0,0},
             game.textures
         ),
         make_level(
-            (Vector2){SCREEN_WIDTH - 100, SCREEN_HEIGHT-10-50}, 
+            (Vector2){100, SCREEN_HEIGHT-10-50}, 
             make_platform_collection(
                 make_platform((Vector2) {0, SCREEN_HEIGHT-10}, SCREEN_WIDTH, 25, WHITE),
                 NULL
             ),
-            (Vector2) {20, SCREEN_HEIGHT - DOOR_SIZE.y - 10 - 25/2.0f},
+            (Vector2) {SCREEN_WIDTH - 70, SCREEN_HEIGHT - DOOR_SIZE.y - 10 - 25/2.0f},
             game.textures
         ),
         NULL
     );
+
+    levels.items[0]->door.position = place_door_on_platform(*levels.items[0]->platforms.items[2]);
 
     game.player = levels.items[game.level]->player;
 
@@ -143,6 +142,22 @@ int main(){
         free_platforms(levels.items[i]->platforms);
     }
     unload_textures(game.textures);
+
+}
+
+int main(int argc, char** argv){
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
+    SetTargetFPS(FPS);
+
+    Camera2D camera = { .zoom = 1.0f };
+    BeginMode2D(camera);
+    
+    SET_FULLSCREEN(1);
+    if(argc > 1 && strcmp(argv[1], "--builder") == 0){
+        builder();
+    } else {
+        game();
+    }
 
     EndMode2D();
     CloseWindow();
