@@ -444,7 +444,7 @@ CLIBAPI void clib_cli_help(CliArguments args, Cstr usage, Cstr footer){
             printf("-%c\t\t\t%s %s[%s]%s\n", args.args[i]->abr, args.args[i]->help, COLOR_FG(args.args[i]->argument_required + 1), has_arg, RESET);
         }
     }
-    printf("\n\n");
+    printf("\n");
 
     if(footer) printf("%s\n", footer);
 }

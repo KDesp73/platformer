@@ -165,7 +165,7 @@ int main(int argc, char** argv){
                 clib_cli_help(args, CONCAT(argv[0], " [-b -c <Creator>] [-v | -h]"), "Made by KDesp73");
                 exit(0);
             case 'v':
-                printf("platformer v0.0.3-demo\n");
+                printf("platformer %s\n", VERSION);
                 exit(0);
             case 'b':
                 is_builder = true;
