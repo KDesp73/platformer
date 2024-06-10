@@ -155,7 +155,10 @@ Cstr door_to_string(Vector2 position){
 }
 
 Cstr platform_to_string(BuilderPlatform platform){
-    return TextFormat("platform %.0f %.0f %.0f %.0f", platform.start.x, platform.start.y, platform.end.x, platform.end.y);
+    Vector2 left;
+    if(platform.start.x <= platform.end.y) left = platform.start;
+    else if(platform.start.x > platform.end.y) left = platform.end;
+    return TextFormat("platform %.0f %.0f %.0f", left.x, left.y, fabsf(platform.start.x - platform.end.x));
 }
 
 char* get_current_timestamp() {
@@ -228,12 +231,14 @@ void builder(Cstr creator){
             char buffer[1024];
 
             buffer[0] = '\0';
-            strcat(buffer, CONCAT("creator ", creator, "\n\n"));
+            strcat(buffer, CONCAT("creator ", creator, "\n"));
             strcat(buffer, CONCAT(player_text, "\n"));
             strcat(buffer, CONCAT(door_text, "\n"));
 
             for(size_t i = 0; i < builder.platforms_count; ++i){
-                strcat(buffer, CONCAT(platform_to_string(builder.platforms[i]), "\n"));
+                strcat(buffer, platform_to_string(builder.platforms[i]));
+                if(i < builder.platforms_count - 1)
+                    strcat(buffer, "\n");
             }
 
             SaveFileText(CONCAT("assets/levels/level-", creator, "-", get_current_timestamp(), ".txt"), buffer);

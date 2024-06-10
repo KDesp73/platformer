@@ -46,6 +46,8 @@ void game(){
 
 
     Levels levels = make_levels(
+        load_level("assets/levels/level-KDesp73-2024-06-11 01:56:20.txt", game.textures),
+        load_level("assets/levels/level-KDesp73-2024-06-11 01:27:41.txt", game.textures),
         make_level(
             (Vector2){SCREEN_WIDTH - 200, SCREEN_HEIGHT-10-50}, 
             make_platform_collection(
@@ -81,7 +83,7 @@ void game(){
         NULL
     );
 
-    levels.items[0]->door.position = place_door_on_platform(*levels.items[0]->platforms.items[2]);
+    levels.items[2]->door.position = place_door_on_platform(*levels.items[2]->platforms.items[2]);
 
     game.player = levels.items[game.level]->player;
 
