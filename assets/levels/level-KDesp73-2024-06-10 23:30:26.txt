@@ -1,0 +1,12 @@
+creator KDesp73
+
+player 100 850
+door 1800 675
+platform 25 1050 200 1050
+platform 325 1025 500 1000
+platform 650 1000 825 975
+platform 975 950 1100 950
+platform 1250 925 1375 900
+platform 1500 875 1600 875
+platform 1700 825 1775 825
+platform 1800 750 1875 750

@@ -1,6 +1,8 @@
 #ifndef BUILDER_H
 #define BUILDER_H
 
-void builder();
+#define CLIB_IMPLEMENTATION
+#include "clib.h"
+void builder(Cstr creator);
 
 #endif // BUILDER_H

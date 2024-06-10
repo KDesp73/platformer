@@ -1,12 +1,11 @@
 #include "builder.h"
 #include <string.h>
-#define CLIB_IMPLEMENTATION
-#include "clib.h"
 #include "config.h"
 #include "game.h"
 #include "raylib.h"
 #include "textures.h"
 #include <stdlib.h>
+#include <time.h>
 
 #define CELL_SIZE PLATFORM_HEIGHT
 #define ROWS SCREEN_HEIGHT / CELL_SIZE
@@ -159,7 +158,39 @@ Cstr platform_to_string(BuilderPlatform platform){
     return TextFormat("platform %.0f %.0f %.0f %.0f", platform.start.x, platform.start.y, platform.end.x, platform.end.y);
 }
 
-void builder(){
+char* get_current_timestamp() {
+    // Get the current time
+    time_t current_time = time(NULL);
+    if (current_time == ((time_t)-1)) {
+        perror("Failed to get the current time");
+        return NULL;
+    }
+
+    // Convert the time to a readable format
+    struct tm *local_time = localtime(&current_time);
+    if (local_time == NULL) {
+        perror("Failed to convert the current time");
+        return NULL;
+    }
+
+    // Allocate memory for the time string
+    char *time_string = (char*) malloc(100 * sizeof(char));
+    if (time_string == NULL) {
+        perror("Failed to allocate memory for the time string");
+        return NULL;
+    }
+
+    // Format the time as a string
+    if (strftime(time_string, 100, "%Y-%m-%d %H:%M:%S", local_time) == 0) {
+        fprintf(stderr, "Failed to format the time string");
+        free(time_string);
+        return NULL;
+    }
+
+    return time_string;
+}
+
+void builder(Cstr creator){
     Textures textures = load_textures(
         "assets/images/jess-30x50.png",
         "assets/images/door-50x80.png",
@@ -193,9 +224,11 @@ void builder(){
         if(IsKeyPressed(KEY_S)){
             Cstr player_text = player_to_string(builder.player);
             Cstr door_text = door_to_string(builder.door);
-            Cstr platform_text = platform_to_string(builder.platforms[0]);
-            char* buffer = (char*) malloc(sizeof(player_text) + sizeof(door_text) + builder.platforms_count * sizeof(platform_text));
 
+            char buffer[1024];
+
+            buffer[0] = '\0';
+            strcat(buffer, CONCAT("creator ", creator, "\n\n"));
             strcat(buffer, CONCAT(player_text, "\n"));
             strcat(buffer, CONCAT(door_text, "\n"));
 
@@ -203,7 +236,8 @@ void builder(){
                 strcat(buffer, CONCAT(platform_to_string(builder.platforms[i]), "\n"));
             }
 
-            SaveFileText("assets/levels/level.txt", buffer);
+            SaveFileText(CONCAT("assets/levels/level-", creator, "-", get_current_timestamp(), ".txt"), buffer);
+            exit(0);
         }
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){

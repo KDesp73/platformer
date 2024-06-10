@@ -146,6 +146,38 @@ void game(){
 }
 
 int main(int argc, char** argv){
+    CliArguments args = clib_make_cli_arguments(4,
+        clib_create_argument('h', "help", "Prints this message", no_argument),
+        clib_create_argument('v', "version", "Prints the program version", no_argument),
+        clib_create_argument('b', "builder", "Starts the level builder instead of the game", no_argument),
+        clib_create_argument('c', "creator", "Prints this message", required_argument)
+    );
+
+    int is_builder = 0;
+    Cstr creator = NULL; 
+
+
+    struct option* opts = clib_get_options(args);
+    int opt;
+    while((opt = getopt_long(argc, argv, clib_generate_cli_format_string(args), opts, NULL)) != -1){
+        switch (opt) {
+            case 'h':
+                clib_cli_help(args, CONCAT(argv[0], " [-b -c <Creator>] [-v | -h]"), "Made by KDesp73");
+                exit(0);
+            case 'v':
+                printf("platformer v0.0.3-demo\n");
+                exit(0);
+            case 'b':
+                is_builder = true;
+                break;
+            case 'c':
+                creator = optarg;
+                break;
+            default:
+                exit(1);
+        }
+    }
+
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
     SetTargetFPS(FPS);
 
@@ -153,8 +185,13 @@ int main(int argc, char** argv){
     BeginMode2D(camera);
     
     SET_FULLSCREEN(1);
-    if(argc > 1 && strcmp(argv[1], "--builder") == 0){
-        builder();
+    if(is_builder){
+        if(creator != NULL)
+            builder(creator);
+        else {
+            ERRO("Creator needs to be specified");
+            exit(1);
+        }
     } else {
         game();
     }
