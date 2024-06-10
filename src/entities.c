@@ -1,4 +1,6 @@
 #include "entities.h"
+#include "config.h"
+#include "game.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -18,9 +20,11 @@ void draw_door(Door door){
     }
 }
 
-void place_door_on_platform(Door* door, Platform platform){
-    door->position.x = platform.start.x + platform.length / 2.0f - door->size.x / 2.0f;
-    door->position.y = platform.start.y - door->size.y - platform.thickness / 2.0f;
+Vector2 place_door_on_platform(Platform platform){
+    return (Vector2) { 
+        platform.start.x + platform.length / 2.0f - DOOR_SIZE.x / 2.0f,
+        platform.start.y - DOOR_SIZE.y - platform.thickness / 2.0f 
+    };
 }
 
 void draw_player(Player player) {
@@ -46,7 +50,7 @@ void draw_player(Player player) {
 }
 
 void draw_platform(Platform platform, Texture2D sprite){
-    if (sprite.width <= 0 || sprite.height <= 0){
+    if (sprite.width <= 0 || sprite.height <= 0 || sprite.width > SCREEN_WIDTH || sprite.height > SCREEN_HEIGHT){
         DrawLineEx(platform.start, (Vector2) {platform.start.x + platform.length, platform.start.y}, platform.thickness, platform.color);
     } else {
         if(IsTextureReady(sprite)){
@@ -90,7 +94,7 @@ Platform* make_platform(Vector2 start, float length, float thickness, Color colo
     return platform;
 }
 
-PlatformCollection make_platform_collection_empty(size_t capacity){
+PlatformCollection allocate_platform_collection(size_t capacity){
     PlatformCollection result = {.capacity = capacity};
     result.items = (Platform**) malloc(sizeof(Platform) * capacity);
     
