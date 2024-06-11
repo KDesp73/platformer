@@ -151,6 +151,10 @@ Cstr player_to_string(Vector2 position){
     return TextFormat("player %.0f %.0f", position.x, position.y);
 }
 
+Cstr scale_to_string(){
+    return TextFormat("scale %.1f", SCALE);
+}
+
 Cstr door_to_string(Vector2 position){
     return TextFormat("door %.0f %.0f", position.x, position.y);
 }
@@ -198,11 +202,13 @@ void builder(Cstr creator){
 
             Cstr player_text = player_to_string(builder.player);
             Cstr door_text = door_to_string(builder.door);
+            Cstr scale_text = scale_to_string();
 
             char buffer[1024];
 
             buffer[0] = '\0';
             strcat(buffer, CONCAT("creator ", creator, "\n"));
+            strcat(buffer, CONCAT(scale_text, "\n"));
             strcat(buffer, CONCAT(player_text, "\n"));
             strcat(buffer, CONCAT(door_text, "\n"));
 

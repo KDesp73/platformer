@@ -15,7 +15,9 @@ void draw_door(Door door){
         DrawRectangleV(door.position, (Vector2) {door.size.x, door.size.y}, door.color);
     } else {
         if(IsTextureReady(*door.sprite)){
-            DrawTextureV(*door.sprite, door.position, WHITE);
+            Rectangle src = {0,0,50.0f, 75.0f};
+            Rectangle dest = {door.position.x, door.position.y, door.size.x, door.size.y};
+            DrawTexturePro(*door.sprite, src , dest, (Vector2) {0}, 0, WHITE);
         }  
     }
 }
@@ -34,11 +36,13 @@ void draw_player(Player player) {
         if(IsTextureReady(*player.sprite)){
             switch (player.status) {
                 case RUNNING_LEFT:
-                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, -player.size.x, player.size.y}, player.position, WHITE);
+                    // DrawTextureRec(*player.sprite, (Rectangle) {0,0, -player.size.x, player.size.y}, player.position, WHITE);
+                    DrawTexturePro(*player.sprite, (Rectangle) {0,0, -25.0f, 50.0f} , (Rectangle) {player.position.x, player.position.y, player.size.x, player.size.y}, (Vector2) {0}, 0, WHITE);
                     break;
                 case IDLE:
                 case RUNNING_RIGHT:
-                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
+                    DrawTexturePro(*player.sprite, (Rectangle) {0,0, 25.0f, 50.0f} , (Rectangle) {player.position.x, player.position.y, player.size.x, player.size.y}, (Vector2) {0}, 0, WHITE);
+                    // DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
                     break;
                 default:
                     ERRO("Unknown status");
@@ -54,7 +58,7 @@ void draw_platform(Platform platform, Texture2D sprite){
     } else {
         if(IsTextureReady(sprite)){
             for(size_t i = 0; i < platform.length / sprite.width; ++i){
-                DrawTextureV(sprite, (Vector2) {platform.start.x + (i * sprite.width), platform.start.y - platform.thickness / 2.0f}, WHITE);
+                DrawTextureEx(sprite, (Vector2) {platform.start.x + (i * sprite.width), platform.start.y - platform.thickness / 2.0f}, 0, platform.thickness / DEFAULT_PLATFORM_HEIGHT, WHITE);
             }
         }
     }

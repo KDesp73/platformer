@@ -10,6 +10,7 @@ typedef struct {
     PlatformCollection platforms;
     Door door;
     Textures textures;
+    float scale; // based on 25.0f
 } Level;
 
 typedef struct {
