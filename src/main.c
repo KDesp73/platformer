@@ -21,9 +21,9 @@ void run_game(){
         .is_over = false,
         .is_level_complete = false,
         .textures = load_textures(
-            // "assets/images/jess-30x50.png",
-            // "assets/images/door-50x80.png",
-            // "assets/images/wood-25x25.png",
+            "assets/images/jess-30x50.png",
+            "assets/images/door-50x80.png",
+            "assets/images/wood-25x25.png",
             NULL // Teriminate the list
         ),
     };
