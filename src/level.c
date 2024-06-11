@@ -231,14 +231,14 @@ Level* load_level(Cstr text, Textures textures) {
             level->creator = strdup(parts[1]);
         } else if (strcmp(parts[0], "player") == 0) {
             if (words != 3) PANIC("Invalid number of values in line %zu\n", i + 1);
-            level->player.position = (Vector2){ atof(parts[1]) * CELL_SIZE, atof(parts[2]) * CELL_SIZE };
+            level->player.position = (Vector2){ atof(parts[1]), atof(parts[2]) };
         } else if (strcmp(parts[0], "door") == 0) {
             if (words != 3) PANIC("Invalid number of values in line %zu\n", i + 1);
-            level->door.position = (Vector2){ atof(parts[1]) * CELL_SIZE, atof(parts[2]) * CELL_SIZE };
+            level->door.position = (Vector2){ atof(parts[1]), atof(parts[2]) };
         } else if (strcmp(parts[0], "platform") == 0) {
             if (words != 4) PANIC("Invalid number of values in line %zu\n", i + 1);
-            Vector2 start = { atof(parts[1]) * CELL_SIZE, atof(parts[2]) * CELL_SIZE };
-            add_platform(make_platform(start, atof(parts[3]) * CELL_SIZE, PLATFORM_HEIGHT, WHITE), &level->platforms);
+            Vector2 start = { atof(parts[1]), atof(parts[2]) };
+            add_platform(make_platform(start, atof(parts[3]), PLATFORM_HEIGHT, WHITE), &level->platforms);
             INFO("Added platform %.0f %.0f %.0f to level", start.x, start.y, atof(parts[3]));
         } else {
             PANIC("Invalid key '%s' in line %zu\n", parts[0], i + 1);

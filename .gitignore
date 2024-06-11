@@ -2,5 +2,6 @@ build
 compile_commands.json
 .cache/
 platformer
+test_load_level
 
 *.o

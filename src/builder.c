@@ -4,6 +4,7 @@
 #include "game.h"
 #include "raylib.h"
 #include "textures.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -161,38 +162,6 @@ Cstr platform_to_string(BuilderPlatform platform){
     return TextFormat("platform %.0f %.0f %.0f", left.x, left.y, fabsf(platform.start.x - platform.end.x));
 }
 
-char* get_current_timestamp() {
-    // Get the current time
-    time_t current_time = time(NULL);
-    if (current_time == ((time_t)-1)) {
-        perror("Failed to get the current time");
-        return NULL;
-    }
-
-    // Convert the time to a readable format
-    struct tm *local_time = localtime(&current_time);
-    if (local_time == NULL) {
-        perror("Failed to convert the current time");
-        return NULL;
-    }
-
-    // Allocate memory for the time string
-    char *time_string = (char*) malloc(100 * sizeof(char));
-    if (time_string == NULL) {
-        perror("Failed to allocate memory for the time string");
-        return NULL;
-    }
-
-    // Format the time as a string
-    if (strftime(time_string, 100, "%Y-%m-%d %H:%M:%S", local_time) == 0) {
-        fprintf(stderr, "Failed to format the time string");
-        free(time_string);
-        return NULL;
-    }
-
-    return time_string;
-}
-
 void builder(Cstr creator){
     Textures textures = load_textures(
         "assets/images/jess-30x50.png",
@@ -225,6 +194,8 @@ void builder(Cstr creator){
         }
 
         if(IsKeyPressed(KEY_S)){
+            add_platform_to_builder((BuilderPlatform) {.start = {-1, -1}, .end = {-1, -1 }}, &builder);
+
             Cstr player_text = player_to_string(builder.player);
             Cstr door_text = door_to_string(builder.door);
 
