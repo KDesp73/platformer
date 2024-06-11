@@ -14,7 +14,6 @@
 #include "clib.h"
 
 
-
 void run_game(){
     Game game = {
         .level = 0,
@@ -34,12 +33,11 @@ void run_game(){
         .velocity = {0},
         .position = {0},
         .size = PLAYER_SIZE,
-        .color = RED
+        .color = PLAYER_COLOR
     };
 
     Camera2D camera = { 0 };
     camera.zoom = 1.0f;
-    camera.target = game.player.position;
     BeginMode2D(camera);
 
     Levels levels = load_levels_from_dir("assets/levels", game.textures);
@@ -48,8 +46,8 @@ void run_game(){
         PANIC("Couldn't load levels");
     }
 
-    DEBU("level 1 player coords: %.0f %.0f", levels.items[0]->player.position.x, levels.items[0]->player.position.y);
     copy_player(&game.player, levels.items[0]->player);
+    DEBU("level 1 player coords: %.0f %.0f", game.player.position.x, game.player.position.y);
     while(!WindowShouldClose()){
         BeginDrawing();
 

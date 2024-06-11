@@ -1,6 +1,0 @@
-creator KDesp73
-player 275 475
-door 425 450
-platform 275 525 50
-platform 350 525 25
-platform 450 525 50

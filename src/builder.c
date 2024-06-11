@@ -3,12 +3,12 @@
 #include "config.h"
 #include "game.h"
 #include "raylib.h"
+#include "raymath.h"
 #include "textures.h"
 #include "utils.h"
 #include <stdlib.h>
 #include <time.h>
 
-#define CELL_SIZE PLATFORM_HEIGHT
 #define ROWS SCREEN_HEIGHT / CELL_SIZE
 #define COLS SCREEN_WIDTH / CELL_SIZE
 
@@ -62,7 +62,7 @@ typedef struct {
 
 
 void place(Vector2 position, Vector2 size, Texture2D texture){
-    DrawTextureRec(texture, (Rectangle) {0,0, size.x, size.y}, position, WHITE);
+    DrawTextureRec(texture, (Rectangle) {0,0, size.x, size.y}, Vector2Scale(position, CELL_SIZE), WHITE);
 }
 
 void place_player(Vector2 position, Textures textures){
@@ -83,7 +83,7 @@ void place_platform(Vector2 start, Vector2 end, Textures textures){
         end = temp;
     }
 
-    for(size_t i = start.x; i <= end.x + 1; i += CELL_SIZE){
+    for(size_t i = start.x; i <= end.x; ++i){
         place_platform_tile((Vector2) {i, start.y}, textures);
     }
 }
@@ -219,17 +219,17 @@ void builder(Cstr creator){
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             switch (selected) {
                 case SELECTION_PLAYER:
-                    builder.player = expand_mouse_position(MOUSE_POSITION);
+                    builder.player = (MOUSE_POSITION);
                     break;
                 case SELECTION_DOOR:
-                    builder.door = expand_mouse_position(MOUSE_POSITION);
+                    builder.door = (MOUSE_POSITION);
                     break;
                 case SELECTION_PLATFORM_START:
-                    current_platform.start = expand_mouse_position(MOUSE_POSITION);
+                    current_platform.start = (MOUSE_POSITION);
                     selected = SELECTION_PLATFORM_END;
                     break;
                 case SELECTION_PLATFORM_END:
-                    current_platform.end = expand_mouse_position(MOUSE_POSITION);
+                    current_platform.end = (MOUSE_POSITION);
                     add_platform_to_builder(current_platform, &builder);
                     reset_current_platform(&current_platform);
                     selected = SELECTION_PLATFORM_START;
