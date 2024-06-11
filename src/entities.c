@@ -15,7 +15,25 @@ void draw_door(Door door){
         DrawRectangleV(door.position, (Vector2) {door.size.x, door.size.y}, door.color);
     } else {
         if(IsTextureReady(*door.sprite)){
-            DrawTextureV(*door.sprite, door.position, WHITE);
+            // DrawTextureV(*door.sprite, door.position, WHITE);
+            DrawTexturePro(
+                *door.sprite,
+                (Rectangle) {
+                    .x = door.position.x, 
+                    .y = door.position.y,
+                    .width = 50,
+                    .height = 80
+                },
+                (Rectangle) {
+                    .x = door.position.x, 
+                    .y = door.position.y,
+                    .width = DOOR_SIZE.x,
+                    .height = DOOR_SIZE.y
+                },
+                DOOR_SIZE,
+                0.0f,
+                WHITE
+            );
         }  
     }
 }
@@ -32,14 +50,49 @@ void draw_player(Player player) {
         DrawRectangleV(player.position, (Vector2) {player.size.x, player.size.y}, player.color);
     } else {
         if(IsTextureReady(*player.sprite)){
-            // DrawTextureV(*player.sprite, player.position, WHITE);
             switch (player.status) {
                 case RUNNING_LEFT:
-                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, -player.size.x, player.size.y}, player.position, WHITE);
+                    // DrawTextureRec(*player.sprite, (Rectangle) {0,0, -player.size.x, player.size.y}, player.position, WHITE);
+                    DrawTexturePro(
+                        *player.sprite,
+                        (Rectangle) {
+                            .x = player.position.x, 
+                            .y = player.position.y,
+                            .width = 30,
+                            .height = 50
+                        },
+                        (Rectangle) {
+                            .x = player.position.x, 
+                            .y = player.position.y,
+                            .width = -PLAYER_SIZE.x,
+                            .height = PLAYER_SIZE.y
+                        },
+                        DOOR_SIZE,
+                        0.0f,
+                        WHITE
+                    );
                     break;
                 case IDLE:
                 case RUNNING_RIGHT:
-                    DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
+                    // DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
+                    DrawTexturePro(
+                        *player.sprite,
+                        (Rectangle) {
+                            .x = player.position.x, 
+                            .y = player.position.y,
+                            .width = 30,
+                            .height = 50
+                        },
+                        (Rectangle) {
+                            .x = player.position.x, 
+                            .y = player.position.y,
+                            .width = PLAYER_SIZE.x,
+                            .height = PLAYER_SIZE.y
+                        },
+                        DOOR_SIZE,
+                        0.0f,
+                        WHITE
+                    );
                     break;
                 default:
                     ERRO("Unknown status");
@@ -55,7 +108,25 @@ void draw_platform(Platform platform, Texture2D sprite){
     } else {
         if(IsTextureReady(sprite)){
             for(size_t i = 0; i < platform.length / sprite.width; ++i){
-                DrawTextureV(sprite, (Vector2) {platform.start.x + (i * sprite.width), platform.start.y - platform.thickness / 2.0f}, WHITE);
+                // DrawTextureV(sprite, (Vector2) {platform.start.x + (i * sprite.width), platform.start.y - platform.thickness / 2.0f}, WHITE);
+                DrawTexturePro(
+                    *platform.sprite,
+                    (Rectangle) {
+                        .x = platform.start.x + (i * sprite.width), 
+                        .y = platform.start.y - platform.thickness / 2.0f,
+                        .width = 25,
+                        .height = 25
+                    },
+                    (Rectangle) {
+                        .x = platform.start.x + (i * PLATFORM_HEIGHT), 
+                        .y = platform.start.y - PLATFORM_HEIGHT / 2.0f,
+                        .width = PLATFORM_HEIGHT,
+                        .height = PLATFORM_HEIGHT 
+                    },
+                    DOOR_SIZE,
+                    0.0f,
+                    WHITE
+                );
             }
         }
     }

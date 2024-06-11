@@ -1,12 +1,17 @@
 #include "level.h"
 #include "clib.h"
+#include "config.h"
 #include "entities.h"
 #include "game.h"
+#include "physics.h"
 #include "raylib.h"
 #include "textures.h"
+#include "utils.h"
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 void draw_level(Level level, Player player, Textures textures){
     assert(level.platforms.items != NULL);
@@ -96,121 +101,145 @@ Levels make_levels(Level* first, ...) {
     return result;
 }
 
-const char** split(const char* str, char delimiter, int* count) {
-    assert(str != NULL);
-    *count = 0;
+// const char** split(const char* str, char delimiter, int* count);
+int split (const char *str, char c, char ***arr){
+    int count = 1;
+    int token_len = 1;
+    int i = 0;
+    char *p;
+    char *t;
 
-    // Create a copy of the input string to tokenize
-    char* str_copy = strdup(str);
-    if (str_copy == NULL) {
-        perror("Failed to duplicate input string");
-        exit(EXIT_FAILURE);
+    p = str;
+    while (*p != '\0')
+    {
+        if (*p == c)
+            count++;
+        p++;
     }
 
-    // Count the number of tokens
-    char* temp = str_copy;
-    while (*temp) {
-        if (*temp == delimiter) {
-            (*count)++;
+    *arr = (char**) malloc(sizeof(char*) * count);
+    if (*arr == NULL)
+        exit(1);
+
+    p = str;
+    while (*p != '\0')
+    {
+        if (*p == c)
+        {
+            (*arr)[i] = (char*) malloc( sizeof(char) * token_len );
+            if ((*arr)[i] == NULL)
+                exit(1);
+
+            token_len = 0;
+            i++;
         }
-        temp++;
+        p++;
+        token_len++;
     }
-    (*count)++;
+    (*arr)[i] = (char*) malloc( sizeof(char) * token_len );
+    if ((*arr)[i] == NULL)
+        exit(1);
 
-    // Allocate memory for the array of strings
-    const char** result = (const char**) malloc((*count) * sizeof(char*));
-    if (result == NULL) {
-        perror("Failed to allocate memory for result");
-        free(str_copy);
-        exit(EXIT_FAILURE);
-    }
-
-    // Tokenize the string
-    int index = 0;
-    char* token = strtok(str_copy, &delimiter);
-    while (token != NULL) {
-        result[index] = strdup(token);
-        if (result[index] == NULL) {
-            perror("Failed to duplicate token");
-            for (int i = 0; i < index; i++) {
-                free((char*)result[i]);
-            }
-            free(result);
-            free(str_copy);
-            exit(EXIT_FAILURE);
+    i = 0;
+    p = str;
+    t = ((*arr)[i]);
+    while (*p != '\0')
+    {
+        if (*p != c && *p != '\0')
+        {
+            *t = *p;
+            t++;
         }
-        index++;
-        token = strtok(NULL, &delimiter);
+        else
+        {
+            *t = '\0';
+            i++;
+            t = ((*arr)[i]);
+        }
+        p++;
     }
 
-    free(str_copy);
-    return result;
+    return count;
 }
 
-Level* load_level(Cstr path, Textures textures) {
+Level* load_level_from_file(Cstr path, Textures textures){
     Cstr contents = clib_read_file(path);
     if (contents == NULL) {
         PANIC("Failed to read file: %s\n", path);
     }
 
-    int count = 0;
-    const char** lines = split(contents, '\n', &count);
+    return load_level(contents, textures);
+}
+
+Level* load_level(Cstr text, Textures textures) {
+    char** lines;
+    int lines_count = split(text, '\n', &lines) - 1;
     if (lines == NULL) {
         PANIC("Failed to split file contents\n");
     }
+    DEBU("Number of lines: %d", lines_count);
 
-    // Count platforms
+    // Allocate memory for Level
     Level* level = (Level*) malloc(sizeof(Level));
     if (level == NULL) {
         PANIC("Failed to allocate memory for level\n");
     }
 
-    level->platforms.count = 0;
-    count--;
-    DEBU("count: %d", count);
-    for (size_t i = 0; i < count; ++i) {
-        if (lines[i] == NULL || lines[i][0] == '\0') continue;
-        DEBU(lines[i]);
 
-        int words = 0;
-        const char** parts = split(lines[i], ' ', &words);
+    int platforms_count = 0;
+    // First pass: Count platforms
+    for (size_t i = 0; i < lines_count; ++i) {
+        if(
+            lines[i] == NULL || 
+            lines[i][0] == EOF || 
+            lines[i][0] == '\0' || 
+            lines[i][0] == '\n'
+        ) continue;
+
+        char** parts;
+        int words = split(lines[i], ' ', &parts);
         if (parts == NULL) continue;
-        if (strcmp(parts[0], "platform") == 0) level->platforms.count++;
+        if (strcmp(parts[0], "platform") == 0) platforms_count++;
 
-        // Free parts after use
         for (int j = 0; j < words; j++) {
             free((char*)parts[j]);
         }
         free(parts);
     }
+    DEBU("Number of platforms: %zu", platforms_count);
 
-    level->platforms = allocate_platform_collection(level->platforms.count);
+    level->platforms = allocate_platform_collection(platforms_count + 1); // +1 for base platform
     level->platforms.count = 0;
 
-    for (size_t i = 0; i < count; ++i) {
+    // Second pass: Process each line
+    for (size_t i = 0; i < lines_count; ++i) {
         if (lines[i] == NULL) continue;
 
-        int words = 0;
-        const char** parts = split(lines[i], ' ', &words);
+        char** parts;
+        int words = split(lines[i], ' ', &parts);
         if (parts == NULL) {
             ERRO("Couldn't split line %zu\n", i + 1);
             continue;
         }
-        if (words == 0) continue;
+        if (words == 0) {
+            free(parts);
+            continue;
+        }
 
         if (strcmp(parts[0], "creator") == 0) {
-            if (words == 1 || words > 2) PANIC("Invalid number of values in line %zu\n", i + 1);
-            level->creator = parts[1];
+            if (words != 2) PANIC("Invalid number of values in line %zu\n", i + 1);
+            level->creator = strdup(parts[1]);
         } else if (strcmp(parts[0], "player") == 0) {
-            if (words == 1 || words > 3) PANIC("Invalid number of values in line %zu\n", i + 1);
-            level->player.position = (Vector2){atof(parts[1]), atof(parts[2])};
+            if (words != 3) PANIC("Invalid number of values in line %zu\n", i + 1);
+            level->player.position = (Vector2){ atof(parts[1]) * CELL_SIZE, atof(parts[2]) * CELL_SIZE };
         } else if (strcmp(parts[0], "door") == 0) {
-            if (words == 1 || words > 3) PANIC("Invalid number of values in line %zu\n", i + 1);
-            level->door.position = (Vector2){atof(parts[1]), atof(parts[2])};
+            if (words != 3) PANIC("Invalid number of values in line %zu\n", i + 1);
+            level->door.position = (Vector2){ atof(parts[1]) * CELL_SIZE, atof(parts[2]) * CELL_SIZE };
         } else if (strcmp(parts[0], "platform") == 0) {
-            if (words == 1 || words > 4) PANIC("Invalid number of values in line %zu\n", i + 1);
-            Vector2 start = {atof(parts[1]), atof(parts[2])};
-            add_platform(make_platform(start, atof(parts[3]), PLATFORM_HEIGHT, WHITE), &level->platforms);
+            if (words != 4) PANIC("Invalid number of values in line %zu\n", i + 1);
+            Vector2 start = { atof(parts[1]) * CELL_SIZE, atof(parts[2]) * CELL_SIZE };
+            add_platform(make_platform(start, atof(parts[3]) * CELL_SIZE, PLATFORM_HEIGHT, WHITE), &level->platforms);
+            INFO("Added platform %.0f %.0f %.0f to level", start.x, start.y, atof(parts[3]));
         } else {
             PANIC("Invalid key '%s' in line %zu\n", parts[0], i + 1);
         }
@@ -223,7 +252,7 @@ Level* load_level(Cstr path, Textures textures) {
     }
 
     // Free lines after use
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < lines_count; i++) {
         free((char*)lines[i]);
     }
     free(lines);
@@ -239,10 +268,80 @@ Level* load_level(Cstr path, Textures textures) {
 
     level->textures = textures;
 
-    DEBU("creator: %s\n", level->creator);
-    DEBU("platform count: %zu\n", level->platforms.count);
-    DEBU("player position: (%.0f, %.0f)\n", level->player.position.x, level->player.position.y);
-    DEBU("door position: (%.0f, %.0f)\n", level->door.position.x, level->door.position.y);
-
     return level;
+}
+
+Cstr* get_files(Cstr dir, int* count){
+    struct dirent *de;
+
+    *count = 0;
+    DIR *dr = opendir(dir);
+
+    if (dr == NULL) {
+        ERRO("Could not open current directory" );
+        return NULL;
+    }
+
+    size_t total_size = 0;
+    while ((de = readdir(dr)) != NULL){
+        total_size += sizeof(char) * strlen(de->d_name);
+    }
+
+    Cstr* items = (Cstr*) malloc(total_size);  
+
+    dr = opendir(dir);
+    while ((de = readdir(dr)) != NULL) {
+        if(strcmp(de->d_name, ".") != 0 && strcmp(de->d_name, "..") != 0){
+            items[(*count)++] = de->d_name;
+        }
+    }
+    closedir(dr);  
+
+    return items;
+}
+
+Levels load_levels_from_dir(Cstr path, Textures textures){
+    int count;
+    
+    Cstr* files = get_files(path, &count);
+    
+    if(files == NULL || count <= 0) {
+        ERRO("Could not get files");
+        return (Levels){.items = NULL};
+    } 
+
+    Levels levels = allocate_levels(count);
+    for(size_t i = 0; i < count; ++i){
+        DEBU("Loaded %s", PATH(path, files[i]));
+        add_level(&levels, load_level_from_file(PATH(path, files[i]), textures));
+    }
+    
+    return levels;
+}
+
+void run_level(Level level, Game* game){
+    // Logic
+    update_player(&game->player, SCREEN_WIDTH, SCREEN_HEIGHT);
+    check_and_resolve_platform_collisions(&game->player, level.platforms);
+
+    if(game->player.position.y + game->player.size.y == SCREEN_HEIGHT){
+        // TODO: fall to previous level
+    }
+
+    if(check_door_collision(&game->player, level.door)){
+        DrawText("^", level.door.position.x + level.door.size.x / 2 - MeasureText("^", 70) / 2.0f, level.door.position.y - 70/2.0f - 10, 70, WHITE);
+        if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
+            game->is_level_complete = true;
+        }
+    }
+
+    // CHEAT
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        copy_vector2(&game->player.position, GetMousePosition());
+    }
+
+    // Draw
+    ClearBackground(GetColor(0x181818FF));
+    DrawText(TextFormat("Level %zu", game->level+1), 20, 20, 30, WHITE);
+    draw_level(level, game->player, level.textures);
 }

@@ -2,6 +2,7 @@
 #define LEVEL_H
 
 #include "entities.h"
+#include "game.h"
 #include "textures.h"
 typedef struct {
     Cstr creator;
@@ -22,6 +23,12 @@ Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2
 Levels make_levels(Level* first, ...);
 Levels allocate_levels(size_t capacity);
 void add_level(Levels* levels, Level* level);
-Level* load_level(Cstr path, Textures textures);
+Level* load_level(Cstr text, Textures textures);
+Level* load_level_from_file(Cstr path, Textures textures);
+
+Levels load_levels_from_dir(Cstr path, Textures textures);
+Levels load_levels_from_table(const char** table, Textures textures);
+
+void run_level(Level level, Game* game);
 
 #endif // LEVEL_H

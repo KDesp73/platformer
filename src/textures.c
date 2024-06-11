@@ -1,4 +1,7 @@
 #include "textures.h"
+#include "clib.h"
+#include "config.h"
+#include "game.h"
 #include "raylib.h"
 #include <stdarg.h>
 #include <stdio.h>
@@ -17,9 +20,9 @@ Textures load_textures(Cstr first, ...) {
     va_list args;
     va_start(args, first);
     for (Cstr current = first; current != NULL; current = va_arg(args, Cstr)) {
-        if(current != NULL)
+        if(current != NULL){
             result.items[result.count++] = LoadTexture(current);
-        else
+        } else
             result.items[result.count++] = (Texture2D){0};
 
         if (result.count >= TEXTURES_COUNT) {

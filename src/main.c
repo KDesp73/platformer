@@ -4,106 +4,58 @@
 #include "game.h"
 #include "level.h"
 #include "raylib.h"
-#include "raymath.h"
-#include "physics.h"
 #include "textures.h"
 #include "config.h"
 #include "ui.h"
 #include "builder.h"
+#include "utils.h"
 
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
 
-#define SET_FULLSCREEN(x) \
-    do { \
-        if(x) { \
-            int display = GetCurrentMonitor(); \
-            SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display)); \
-        } else { \
-            SetWindowSize(MIN_SCREEN_WIDTH, MIN_SCREEN_HEIGHT); \
-        } \
-        ToggleFullscreen(); \
-    } while(0); 
 
 
-
-void game(){
+void run_game(){
     Game game = {
         .level = 0,
         .is_over = false,
         .is_level_complete = false,
         .textures = load_textures(
-            "assets/images/jess-30x50.png",
-            "assets/images/door-50x80.png",
-            "assets/images/wood-25x25.png",
+            // "assets/images/jess-30x50.png",
+            // "assets/images/door-50x80.png",
+            // "assets/images/wood-25x25.png",
             NULL // Teriminate the list
-        )
+        ),
+    };
+    game.player = (Player) {
+        .status = IDLE,
+        .sprite = &game.textures.items[PLAYER],
+        .is_grounded = false,
+        .velocity = {0},
+        .position = {0},
+        .size = PLAYER_SIZE,
+        .color = RED
     };
 
-    PRINT_TEXTURE(PLAYER, game.textures);
-    PRINT_TEXTURE(DOOR, game.textures);
-    PRINT_TEXTURE(PLATFORM, game.textures);
+    Camera2D camera = { 0 };
+    camera.zoom = 1.0f;
+    camera.target = game.player.position;
+    BeginMode2D(camera);
 
+    Levels levels = load_levels_from_dir("assets/levels", game.textures);
 
-    Levels levels = make_levels(
-        load_level("assets/levels/level-KDesp73-2024-06-11 01:56:20.txt", game.textures),
-        load_level("assets/levels/level-KDesp73-2024-06-11 01:27:41.txt", game.textures),
-        make_level(
-            (Vector2){SCREEN_WIDTH - 200, SCREEN_HEIGHT-10-50}, 
-            make_platform_collection(
-                make_platform((Vector2) {0, SCREEN_HEIGHT-10}, SCREEN_WIDTH, 25, WHITE),
-                make_platform((Vector2) {600, 500}, 150, 25, WHITE),
-                make_platform((Vector2) {100, 300}, 150, 25, WHITE),
-                make_platform((Vector2) {400, 300}, 150, 25, WHITE),
-                make_platform((Vector2) {500, 400}, 150, 25, WHITE),
-                make_platform((Vector2) {800, 400}, 150, 25, WHITE),
-                make_platform((Vector2) {100, 800}, 150, 25, WHITE),
-                make_platform((Vector2) {200, 700}, 150, 25, WHITE),
-                make_platform((Vector2) {900, 500}, 150, 25, WHITE),
-                make_platform((Vector2) {300, 600}, 150, 25, WHITE),
-                make_platform((Vector2) {200, 900}, 150, 25, WHITE),
-                make_platform((Vector2) {600, 900}, 150, 25, WHITE),
-                make_platform((Vector2) {800, 950}, 150, 25, WHITE),
-                make_platform((Vector2) {1000, 1000}, 150, 25, WHITE),
-                make_platform((Vector2) {1200, 1000}, 150, 25, WHITE),
-                NULL // IMPORTANT!
-            ), 
-            (Vector2) {0,0},
-            game.textures
-        ),
-        make_level(
-            (Vector2){100, SCREEN_HEIGHT-10-50}, 
-            make_platform_collection(
-                make_platform((Vector2) {0, SCREEN_HEIGHT-10}, SCREEN_WIDTH, 25, WHITE),
-                NULL
-            ),
-            (Vector2) {SCREEN_WIDTH - 70, SCREEN_HEIGHT - DOOR_SIZE.y - 10 - 25/2.0f},
-            game.textures
-        ),
-        NULL
-    );
+    if(levels.items == NULL){
+        PANIC("Couldn't load levels");
+    }
 
-    levels.items[2]->door.position = place_door_on_platform(*levels.items[2]->platforms.items[2]);
-
-    game.player = levels.items[game.level]->player;
-
+    DEBU("level 1 player coords: %.0f %.0f", levels.items[0]->player.position.x, levels.items[0]->player.position.y);
+    copy_player(&game.player, levels.items[0]->player);
     while(!WindowShouldClose()){
         BeginDrawing();
+
         if(!game.is_over){
             if(!game.is_level_complete){
-                update_player(&game.player, SCREEN_WIDTH, SCREEN_HEIGHT);
-                check_and_resolve_platform_collisions(&game.player, levels.items[game.level]->platforms);
-
-                if(check_door_collision(&game.player, levels.items[game.level]->door)){
-                    DrawText("^", levels.items[game.level]->door.position.x + levels.items[game.level]->door.size.x / 2 - MeasureText("^", 70) / 2.0f, levels.items[game.level]->door.position.y - 70/2.0f - 10, 70, WHITE);
-                    if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
-                        game.is_level_complete = true;
-                    }
-                }
-
-                ClearBackground(GetColor(0x181818FF));
-                DrawText(TextFormat("Level %zu", game.level+1), 20, 20, 30, WHITE);
-                draw_level(*(levels.items[game.level]), game.player, levels.items[game.level]->textures);
+                run_level(*levels.items[game.level], &game);
             } else {
                 if(game.level == levels.count-1){
                     game.is_over = true;
@@ -115,6 +67,7 @@ void game(){
                     if(IsKeyPressed(KEY_ENTER)){
                         game.level++;
                         game.is_level_complete = 0;
+                        copy_player(&game.player, levels.items[game.level]->player);
                         game.player = levels.items[game.level]->player;
                     }
                 }
@@ -126,25 +79,15 @@ void game(){
             DrawCenteredText("Press Enter to exit", SCREEN_HEIGHT/2 + 100, 70, WHITE);
 
             if(IsKeyPressed(KEY_ENTER)){
-                for(size_t i = 0; i < levels.count; ++i){
-                    free_platforms(levels.items[i]->platforms);
-                }
-                unload_textures(game.textures);
-
-                EndMode2D();
-                CloseWindow();
+                clean(&levels, &game);
                 exit(0);
             }
         }
+
         EndDrawing();
     }
 
-
-    for(size_t i = 0; i < levels.count; ++i){
-        free_platforms(levels.items[i]->platforms);
-    }
-    unload_textures(game.textures);
-
+    clean(&levels, &game);
 }
 
 int main(int argc, char** argv){
@@ -183,9 +126,6 @@ int main(int argc, char** argv){
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
     SetTargetFPS(FPS);
 
-    Camera2D camera = { .zoom = 1.0f };
-    BeginMode2D(camera);
-    
     SET_FULLSCREEN(1);
     if(is_builder){
         if(creator != NULL)
@@ -195,11 +135,9 @@ int main(int argc, char** argv){
             exit(1);
         }
     } else {
-        game();
+        run_game();
     }
 
-    EndMode2D();
-    CloseWindow();
     return 0;
 }
 

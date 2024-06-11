@@ -1,7 +1,11 @@
-TODO: level builder
 TODO: settings
 TODO: home screen
 TODO: menu
-TODO: load level from file
-TODO: better assets
 TODO: background pixelart
+TODO: (demo) Animation Framework
+TODO: (demo) Reliable level builder and loader
+TODO: (demo) Clean Code
+TODO: (demo) README
+DONE: level builder
+DONE: load level from file
+DONE: better assets
