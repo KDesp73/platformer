@@ -48,12 +48,14 @@ void run_game(){
 
     copy_player(&game.player, levels.items[0]->player);
     DEBU("level 1 player coords: %.0f %.0f", game.player.position.x, game.player.position.y);
+    DEBU("level 1 door coords: %.0f %.0f", levels.items[0]->door.position.x, levels.items[0]->door.position.y);
     while(!WindowShouldClose()){
         BeginDrawing();
 
         if(!game.is_over){
             if(!game.is_level_complete){
                 run_level(*levels.items[game.level], &game);
+                show_mouse_coords_at_cursor();
             } else {
                 if(game.level == levels.count-1){
                     game.is_over = true;

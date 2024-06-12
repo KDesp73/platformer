@@ -236,15 +236,16 @@ Level* load_level(Cstr text, Textures textures) {
             level->scale = atof(parts[1]);
         } else if (strcmp(parts[0], "player") == 0) {
             if (words != 3) PANIC("Invalid number of values in line %zu\n", i + 1);
-            level->player.position = (Vector2){ atof(parts[1]) * BASE * level->scale, atof(parts[2]) * BASE * level->scale };
+            level->player.position = (Vector2){ atof(parts[1]), atof(parts[2]) };
         } else if (strcmp(parts[0], "door") == 0) {
             if (words != 3) PANIC("Invalid number of values in line %zu\n", i + 1);
-            level->door.position = (Vector2){ atof(parts[1]) * BASE * level->scale, atof(parts[2]) * BASE * level->scale };
+            level->door.position = (Vector2){ atof(parts[1]), atof(parts[2]) };
         } else if (strcmp(parts[0], "platform") == 0) {
             if (words != 4) PANIC("Invalid number of values in line %zu\n", i + 1);
-            Vector2 start = { atof(parts[1]) * BASE * level->scale, atof(parts[2]) * BASE * level->scale };
-            add_platform(make_platform(start, atof(parts[3]) * BASE * level->scale, BASE_PLATFORM_HEIGHT * level->scale, WHITE), &level->platforms);
-            INFO("Added platform %.0f %.0f %.0f to level", start.x, start.y, atof(parts[3]));
+            Vector2 start = { atof(parts[1]), atof(parts[2]) };
+            start = Vector2Scale(start, CELL_SIZE(level->scale));
+            INFO("Added platform %.0f %.0f %.0f to level", start.x, start.y, atof(parts[3]) * CELL_SIZE(level->scale));
+            add_platform(make_platform((Vector2) {start.x, start.y + CELL_SIZE(level->scale) / 2}, atof(parts[3]) * CELL_SIZE(level->scale), PLATFORM_HEIGHT(level->scale), WHITE), &level->platforms);
         } else {
             PANIC("Invalid key '%s' in line %zu\n", parts[0], i + 1);
         }
@@ -262,12 +263,14 @@ Level* load_level(Cstr text, Textures textures) {
     }
     free(lines);
 
-    level->player.size = Vector2Scale(BASE_PLAYER_SIZE, level->scale);
+    level->player.position = Vector2Scale(level->player.position, CELL_SIZE(level->scale));
+    level->player.size = Vector2Scale(BASE_PLAYER_SIZE, (level->scale));
     level->player.color = PLAYER_COLOR;
     level->player.sprite = &textures.items[PLAYER];
     level->player.status = IDLE;
 
-    level->door.size = Vector2Scale(BASE_DOOR_SIZE, level->scale);
+    level->door.position = Vector2Scale(level->door.position, CELL_SIZE(level->scale));
+    level->door.size = Vector2Scale(BASE_DOOR_SIZE, (level->scale));
     level->door.color = DOOR_COLOR;
     level->door.sprite = &textures.items[DOOR];
 
@@ -328,7 +331,7 @@ Levels load_levels_from_dir(Cstr path, Textures textures){
 
 void run_level(Level level, Game* game){
     // Logic
-    update_player(&game->player, SCREEN_WIDTH, SCREEN_HEIGHT);
+    update_player(&game->player, SCREEN_WIDTH, SCREEN_HEIGHT, level.scale);
     check_and_resolve_platform_collisions(&game->player, level.platforms);
 
     if(game->player.position.y + game->player.size.y == SCREEN_HEIGHT){

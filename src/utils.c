@@ -6,6 +6,10 @@ long map(long x, long in_min, long in_max, long out_min, long out_max){
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+void print_vector2(Vector2 vec, Cstr tag){
+    printf("[%s] x: %.2f y: %.2f\n", tag, vec.x, vec.y);
+}
+
 char* get_current_timestamp() {
     // Get the current time
     time_t current_time = time(NULL);

@@ -82,27 +82,27 @@ void check_and_resolve_platform_collisions(Player* player, PlatformCollection pl
     }
 }
 
-void update_player(Player* player, float windowWidth, float windowHeight) {
+void update_player(Player* player, float windowWidth, float windowHeight, float scale) {
     if (player->is_grounded && IsKeyPressed(KEY_SPACE)) {
-        player->velocity.y = -JUMP_FORCE;
+        player->velocity.y = -JUMP_FORCE(scale);
         player->is_grounded = false;
     }
 
     if (!player->is_grounded) {
-        player->velocity.y += GRAVITY * DT;
+        player->velocity.y += GRAVITY(scale) * DT;
     }
 
     player->position.y += player->velocity.y * DT;
 
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
-        player->velocity.x = -PLAYER_STEP;
+        player->velocity.x = -PLAYER_STEP(scale);
         player->status = RUNNING_LEFT;
     } else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
-        player->velocity.x = PLAYER_STEP;
+        player->velocity.x = PLAYER_STEP(scale);
         player->status = RUNNING_RIGHT;
     } else {
         // Apply friction when no input is given
-        player->velocity.x *= FRICTION;
+        player->velocity.x *= FRICTION(scale);
     }
 
     player->position.x += player->velocity.x * DT;

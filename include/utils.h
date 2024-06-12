@@ -12,6 +12,7 @@ void copy_vector2(Vector2* dest, const Vector2 src);
 void copy_color(Color* dest, const Color src);
 void copy_texture2D(Texture2D* dest, const Texture2D src);
 void copy_player(Player* dest, const Player src);
+void print_vector2(Vector2 vec, Cstr tag);
 
 void clean(Levels* levels, Game* game);
 

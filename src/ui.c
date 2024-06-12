@@ -39,7 +39,7 @@ void draw_grid(float scale, int draw_coords, int draw_center){
 }
 
 Vector2 mouse_cell_position(float scale) {
-    int cellSize = CELL_SIZE(scale);
+    float cellSize = CELL_SIZE(scale);
 
     // Map mouse coordinates to cell grid
     int x_cell_over = (int)map((float)GetMousePosition().x, 0, (float)SCREEN_WIDTH, 0, (float)(SCREEN_WIDTH / cellSize));
@@ -52,4 +52,9 @@ Vector2 mouse_cell_position(float scale) {
     result.x = x_cell_over;
     result.y = y_cell_over;
     return result;
+}
+
+void show_mouse_coords_at_cursor(){
+    Cstr text = TextFormat("%.2f %.2f", GetMousePosition().x, GetMousePosition().y);
+    DrawText(text, GetMousePosition().x + 20, GetMousePosition().y, 10, YELLOW);
 }

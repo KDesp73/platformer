@@ -1,5 +1,6 @@
 #include "entities.h"
 #include "config.h"
+#include "utils.h"
 #include "game.h"
 #include <assert.h>
 #include <stdarg.h>
@@ -45,13 +46,44 @@ void draw_player(Player player) {
     }
 }
 
-void draw_platform(Platform platform, Texture2D sprite){
-    if (sprite.width <= 0 || sprite.height <= 0 || sprite.width > SCREEN_WIDTH || sprite.height > SCREEN_HEIGHT){
-        DrawLineEx(platform.start, (Vector2) {platform.start.x + platform.length, platform.start.y}, platform.thickness, platform.color);
+// void draw_platform(Platform platform, Texture2D sprite){
+//     if (sprite.width <= 0 || sprite.height <= 0 || sprite.width > SCREEN_WIDTH || sprite.height > SCREEN_HEIGHT){
+//         Vector2 new_start = {platform.start.x, platform.start.y + platform.thickness / 2};
+//         DrawLineEx(new_start, (Vector2) {platform.start.x + platform.length, platform.start.y + platform.thickness / 2}, platform.thickness, platform.color);
+//     } else {
+//         if(IsTextureReady(sprite)){
+//             float scale = ceilf(platform.thickness / BASE);
+//             float cell_size = CELL_SIZE(scale);
+//             Rectangle src = {0,0, 25, 25};
+//             for(float i = 0; i < platform.length - cell_size; i += cell_size){
+//                 Rectangle dest = {
+//                     platform.start.x + i, 
+//                     platform.start.y - cell_size / 2, 
+//                     platform.thickness, 
+//                     platform.thickness
+//                 };
+//                 DrawTexturePro(sprite, src, dest, (Vector2) {0}, 0, WHITE);
+//             }
+//         }
+//     }
+// }
+
+void draw_platform(Platform platform, Texture2D sprite) {
+    if (sprite.width <= 0 || sprite.height <= 0 || sprite.width > SCREEN_WIDTH || sprite.height > SCREEN_HEIGHT) {
+        DrawLineEx(platform.start, (Vector2){platform.start.x + platform.length, platform.start.y}, platform.thickness, platform.color);
     } else {
-        if(IsTextureReady(sprite)){
-            for(size_t i = 0; i < platform.length / sprite.width; ++i){
-                DrawTextureEx(sprite, (Vector2) {platform.start.x + (i * sprite.width), platform.start.y - platform.thickness / 2.0f}, 0, platform.thickness / BASE_PLATFORM_HEIGHT, WHITE);
+        if (IsTextureReady(sprite)) {
+            float scale = ceilf(platform.thickness / BASE);
+            float cell_size = CELL_SIZE(scale);
+            Rectangle src = {0, 0, sprite.width, sprite.height};
+            for (float i = 0; i < (cell_size * platform.length / cell_size) - cell_size; i += cell_size) {
+                Rectangle dest = {
+                    platform.start.x + i, 
+                    platform.start.y - platform.thickness / 2.0f, 
+                    cell_size, 
+                    platform.thickness
+                };
+                DrawTexturePro(sprite, src, dest, (Vector2){0, 0}, 0, WHITE);
             }
         }
     }

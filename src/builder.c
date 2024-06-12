@@ -5,6 +5,7 @@
 #include "config.h"
 #include "entities.h"
 #include "game.h"
+#include "level.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "textures.h"
@@ -13,6 +14,15 @@
 #include <stdlib.h>
 #include <time.h>
 
+typedef enum {
+    KEY_SAVE = KEY_S,
+    KEY_TEST = KEY_T,
+    KEY_DOOR = KEY_D,
+    KEY_PLAYER = KEY_P,
+    KEY_PLATFORM = KEY_F,
+    KEY_RESET = KEY_R,
+    KEY_QUIT = KEY_Q,
+} BuilderKeys;
 
 
 typedef enum {
@@ -79,16 +89,30 @@ void place_platform_tile(Vector2 position, Textures textures, float scale){
 }
 
 void place_platform(Vector2 start, Vector2 end, Textures textures, float scale){
-    draw_platform(
-        (Platform) { 
-            .sprite = &textures.items[PLATFORM], 
-            .thickness = PLATFORM_HEIGHT(scale) * scale, 
-            .start = Vector2Scale(start, CELL_SIZE(scale)),
-            .color = PLATFORM_COLOR,
-            .length = fabsf(start.x - end.x) * CELL_SIZE(scale),
-        }, 
-        textures.items[PLATFORM]
-    );
+    // draw_platform(
+    //     (Platform) { 
+    //         .sprite = &textures.items[PLATFORM], 
+    //         .thickness = PLATFORM_HEIGHT(scale), 
+    //         .start = Vector2Scale(start, CELL_SIZE(scale)),
+    //         .color = PLATFORM_COLOR,
+    //         .length = (fabsf(start.x - end.x) + 1) * CELL_SIZE(scale),
+    //     }, 
+    //     textures.items[PLATFORM]
+    // );
+
+    Vector2 left = (start.x >= end.x) ? end : start;
+    Vector2 right = (start.x >= end.x) ? start : end;
+    DEBU("left x: %.0f, y: %.0f", left.x, left.y);
+    DEBU("right x: %.0f, y: %.0f", right.x, right.y);
+    for(size_t i = 0; i < fabsf(start.x - end.x); i++){
+        DEBU("%zu", i);
+        Vector2 tile_position = {
+            .x = left.x + i,
+            .y = start.y
+        };
+
+        place_platform_tile(tile_position, textures, scale);
+    }
 }
 
 
@@ -162,6 +186,30 @@ Cstr platform_to_string(BuilderPlatform platform){
     return TextFormat("platform %.0f %.0f %.0f", left.x, left.y, fabsf(platform.start.x - platform.end.x));
 }
 
+char* export_level(Builder builder, float scale, Cstr creator){
+    add_platform_to_builder((BuilderPlatform) {.start = {-1, -1}, .end = {-1, -1 }}, &builder);
+
+    Cstr player_text = player_to_string(builder.player);
+    Cstr door_text = door_to_string(builder.door);
+    Cstr scale_text = scale_to_string(scale);
+
+    char* buffer = (char*) malloc(1024);
+
+    buffer[0] = '\0';
+    strcat(buffer, CONCAT("creator ", creator, "\n"));
+    strcat(buffer, CONCAT(scale_text, "\n"));
+    strcat(buffer, CONCAT(player_text, "\n"));
+    strcat(buffer, CONCAT(door_text, "\n"));
+
+    for(size_t i = 0; i < builder.platforms_count; ++i){
+        strcat(buffer, platform_to_string(builder.platforms[i]));
+        if(i < builder.platforms_count - 1)
+            strcat(buffer, "\n");
+    }
+
+    return buffer;
+}
+
 void builder(Cstr creator, float scale){
     DEBU("scale: %f", scale);
     DEBU("Cell Size: %f", CELL_SIZE(scale));
@@ -186,40 +234,51 @@ void builder(Cstr creator, float scale){
 
     int selected = -1;
     while(!WindowShouldClose()){
-        if(selected != SELECTION_PLATFORM_END && IsKeyPressed(KEY_P)) selected = SELECTION_PLAYER;
-        if(IsKeyPressed(KEY_F)) selected = SELECTION_PLATFORM_START;
-        if(selected != SELECTION_PLATFORM_END && IsKeyPressed(KEY_D)) selected = SELECTION_DOOR;
+        if(selected != SELECTION_PLATFORM_END && IsKeyPressed(KEY_PLAYER)) selected = SELECTION_PLAYER;
+        if(IsKeyPressed(KEY_PLATFORM)) selected = SELECTION_PLATFORM_START;
+        if(selected != SELECTION_PLATFORM_END && IsKeyPressed(KEY_DOOR)) selected = SELECTION_DOOR;
 
-        if(IsKeyPressed(KEY_R)){
+        if(IsKeyPressed(KEY_RESET)){
             reset_player(&builder);
             reset_door(&builder);
             builder.platforms = (BuilderPlatform*) malloc(sizeof(BuilderPlatform) * MAX_PLATFORMS);
             builder.platforms_count = 0;
         }
 
-        if(IsKeyPressed(KEY_S)){
-            add_platform_to_builder((BuilderPlatform) {.start = {-1, -1}, .end = {-1, -1 }}, &builder);
-
-            Cstr player_text = player_to_string(builder.player);
-            Cstr door_text = door_to_string(builder.door);
-            Cstr scale_text = scale_to_string(scale);
-
-            char buffer[1024];
-
-            buffer[0] = '\0';
-            strcat(buffer, CONCAT("creator ", creator, "\n"));
-            strcat(buffer, CONCAT(scale_text, "\n"));
-            strcat(buffer, CONCAT(player_text, "\n"));
-            strcat(buffer, CONCAT(door_text, "\n"));
-
-            for(size_t i = 0; i < builder.platforms_count; ++i){
-                strcat(buffer, platform_to_string(builder.platforms[i]));
-                if(i < builder.platforms_count - 1)
-                    strcat(buffer, "\n");
-            }
-
-            SaveFileText(CONCAT("assets/levels/level-", creator, "-", get_current_timestamp(), ".txt"), buffer);
+        if(IsKeyPressed(KEY_SAVE)){
+            SaveFileText(CONCAT("assets/levels/level-", creator, "-", get_current_timestamp(), ".txt"), export_level(builder, scale, creator));
             exit(0);
+        }
+
+        if(IsKeyPressed(KEY_TEST)){
+            Cstr level_str = export_level(builder, scale, creator);
+            Game game = {
+                .level = 0,
+                .is_over = false,
+                .is_level_complete = false,
+                .textures = load_textures(
+                        "assets/images/jess-30x50.png",
+                        "assets/images/door-50x80.png",
+                        "assets/images/wood-25x25.png",
+                        NULL // Teriminate the list
+                        ),
+            };
+            game.player = (Player) {
+                .status = IDLE,
+                    .sprite = &game.textures.items[PLAYER],
+                    .is_grounded = false,
+                    .velocity = {0},
+                    .position = {0},
+                    .size = PLAYER_SIZE(1.0f),
+                    .color = PLAYER_COLOR
+            };
+            printf("%s\n", level_str);
+            while(!IsKeyPressed(KEY_QUIT)){
+                BeginDrawing();
+                run_level(*load_level(level_str, textures), &game);
+                EndDrawing();
+            }
+            
         }
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
@@ -231,11 +290,11 @@ void builder(Cstr creator, float scale){
                     builder.door = (MOUSE_POSITION(scale));
                     break;
                 case SELECTION_PLATFORM_START:
-                    current_platform.start = (MOUSE_POSITION(scale));
+                    current_platform.start = (MOUSE_POSITION(scale)); 
                     selected = SELECTION_PLATFORM_END;
                     break;
                 case SELECTION_PLATFORM_END:
-                    current_platform.end = (MOUSE_POSITION(scale));
+                    current_platform.end = (Vector2) { MOUSE_POSITION(scale).x + (current_platform.end.x > current_platform.start.x), MOUSE_POSITION(scale).y };
                     add_platform_to_builder(current_platform, &builder);
                     reset_current_platform(&current_platform);
                     selected = SELECTION_PLATFORM_START;
@@ -257,6 +316,8 @@ void builder(Cstr creator, float scale){
 
         if(selected == SELECTION_PLATFORM_END){
             place_platform_tile(current_platform.start, textures, scale);
+            Vector2 start = Vector2Scale(current_platform.start, CELL_SIZE(scale));
+            DrawLineEx((Vector2) {start.x + CELL_SIZE(scale) / 2, start.y + CELL_SIZE(scale) / 2}, (Vector2) {GetMousePosition().x, current_platform.start.y * CELL_SIZE(scale) + CELL_SIZE(scale) / 2}, 10.0f, YELLOW);
         }
         if(!is_platform_reset(current_platform)){
             place_platform(current_platform.start, current_platform.end, textures, scale);

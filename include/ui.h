@@ -9,6 +9,8 @@ void draw_grid(float scale, int draw_coords, int draw_center);
 
 Vector2 mouse_cell_position(float scale);
 
+void show_mouse_coords_at_cursor();
+
 #define MOUSE_POSITION(scale) \
     mouse_cell_position(scale)
 

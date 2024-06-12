@@ -1,0 +1,12 @@
+creator KDesp73
+scale 1.0
+player 28 11
+door 38 20
+platform 28 13 3
+platform 32 11 3
+platform 35 19 4
+platform 44 17 4
+platform 36 22 8
+platform 34 24 4
+platform 36 22 4
+platform -1 -1 0
