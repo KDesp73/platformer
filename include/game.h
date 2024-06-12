@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "textures.h"
 
-#define BASE ceilf(SCREEN_WIDTH / 50.0f)
+#define BASE ceilf(SCREEN_WIDTH / 48.0f)
 #define CELL_SIZE(scale) (BASE * scale)
 #define ROWS(scale) ((int) (SCREEN_WIDTH / CELL_SIZE(scale)))
 #define COLS(scale) ((int) (SCREEN_HEIGHT / CELL_SIZE(scale)))

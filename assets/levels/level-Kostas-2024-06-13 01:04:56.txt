@@ -1,0 +1,8 @@
+creator Kostas
+scale 1.0
+player 4 20
+door 29 19
+platform 4 24 29
+platform 4 22 6
+platform 24 22 8
+platform -1 -1 0

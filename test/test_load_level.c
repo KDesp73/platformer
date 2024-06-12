@@ -43,7 +43,7 @@ typedef struct {
 } TestPlatform;
 
 Cstr vec_to_string(Vector2 vec){
-    return TextFormat("%.0f %.0f", vec.x, vec.y);
+    return TextFormat("%.2f %.2f", vec.x, vec.y);
 }
 
 int platformcmp(TestPlatform p1, Platform p2){
@@ -58,20 +58,21 @@ int test_platforms(TestPlatform* expected_platforms, Level* level){
     int passed = true;
     for(size_t i = 0; i < level->platforms.count; ++i){
         passed &= test(
-            platformcmp(expected_platforms[i], *level->platforms.items[i]),
-            TextFormat("Platform %zu", i),
-            CONCAT(vec_to_string(expected_platforms[i].start), " and ", floatToString(expected_platforms[i].length)),
-            CONCAT(vec_to_string(level->platforms.items[i]->start), " and ", floatToString(level->platforms.items[i]->length))
+                platformcmp(expected_platforms[i], *level->platforms.items[i]),
+                TextFormat("Platform %zu", i),
+                CONCAT(vec_to_string(expected_platforms[i].start), " and ", floatToString(expected_platforms[i].length)),
+                CONCAT(vec_to_string(level->platforms.items[i]->start), " and ", floatToString(level->platforms.items[i]->length))
         );
     }
     return passed;
 }
 
 int main(){
+    InitWindow(0, 0, "Test");
     Level* level = load_level_from_file("assets/levels/test.txt", (Textures) {.items = NULL});
 
     float cell_size = CELL_SIZE(level->scale);
-    Vector2 expected_player = {0};
+    Vector2 expected_player = {0, 0};
     Vector2 expected_door = {10 * cell_size, 9 * cell_size};
     TestPlatform expected_platforms[30] = {
         (TestPlatform){.start = (Vector2) {20 * cell_size, 20 * cell_size + cell_size / 2}, .length = 10 * cell_size},
@@ -118,5 +119,36 @@ int main(){
     ), "Test", NULL, NULL);
 
 
+    CloseWindow();
     return 0;
 }
+
+
+// creator test
+// scale 1.0
+// player 0 0
+// door 10 9
+// platform 20 20 10
+// platform 4 2 5
+// platform 30 10 1
+// platform 24 18 7
+// platform 35 12 3
+// platform 40 20 5
+// platform 22 15 9
+// platform 38 25 2
+// platform 31 19 6
+// platform 27 14 4
+// platform 29 21 8
+// platform 33 23 1
+// platform 36 11 10
+// platform 42 16 7
+// platform 39 13 5
+// platform 28 24 3
+// platform 34 22 9
+// platform 30 17 6
+// platform 37 26 4
+// platform 25 20 8
+// platform 32 18 2
+// platform 41 15 10
+// platform 23 19 1
+// platform -1 -1 0

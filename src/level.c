@@ -322,8 +322,8 @@ Levels load_levels_from_dir(Cstr path, Textures textures){
 
     Levels levels = allocate_levels(count);
     for(size_t i = 0; i < count; ++i){
-        INFO("Loaded %s", PATH(path, files[i]));
         add_level(&levels, load_level_from_file(PATH(path, files[i]), textures));
+        INFO("Loaded %s", PATH(path, files[i]));
     }
     
     return levels;

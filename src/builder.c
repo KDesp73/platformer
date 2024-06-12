@@ -89,23 +89,9 @@ void place_platform_tile(Vector2 position, Textures textures, float scale){
 }
 
 void place_platform(Vector2 start, Vector2 end, Textures textures, float scale){
-    // draw_platform(
-    //     (Platform) { 
-    //         .sprite = &textures.items[PLATFORM], 
-    //         .thickness = PLATFORM_HEIGHT(scale), 
-    //         .start = Vector2Scale(start, CELL_SIZE(scale)),
-    //         .color = PLATFORM_COLOR,
-    //         .length = (fabsf(start.x - end.x) + 1) * CELL_SIZE(scale),
-    //     }, 
-    //     textures.items[PLATFORM]
-    // );
-
     Vector2 left = (start.x >= end.x) ? end : start;
     Vector2 right = (start.x >= end.x) ? start : end;
-    DEBU("left x: %.0f, y: %.0f", left.x, left.y);
-    DEBU("right x: %.0f, y: %.0f", right.x, right.y);
     for(size_t i = 0; i < fabsf(start.x - end.x); i++){
-        DEBU("%zu", i);
         Vector2 tile_position = {
             .x = left.x + i,
             .y = start.y
@@ -183,7 +169,7 @@ Cstr platform_to_string(BuilderPlatform platform){
     Vector2 left;
     if(platform.start.x <= platform.end.y) left = platform.start;
     else if(platform.start.x > platform.end.y) left = platform.end;
-    return TextFormat("platform %.0f %.0f %.0f", left.x, left.y, fabsf(platform.start.x - platform.end.x));
+    return TextFormat("platform %.0f %.0f %.0f", left.x, left.y, fabsf(platform.end.x - platform.start.x));
 }
 
 char* export_level(Builder builder, float scale, Cstr creator){
@@ -210,7 +196,7 @@ char* export_level(Builder builder, float scale, Cstr creator){
     return buffer;
 }
 
-void builder(Cstr creator, float scale){
+void builder(Cstr creator, float scale, Camera2D camera){
     DEBU("scale: %f", scale);
     DEBU("Cell Size: %f", CELL_SIZE(scale));
     DEBU("Rows: %d", ROWS(scale));
@@ -273,28 +259,38 @@ void builder(Cstr creator, float scale){
                     .color = PLAYER_COLOR
             };
             printf("%s\n", level_str);
+            Level* level = load_level(level_str, game.textures);
+            copy_vector2(&game.player.position, level->player.position);
+            copy_vector2(&game.player.size, level->player.size);
             while(!IsKeyPressed(KEY_QUIT)){
                 BeginDrawing();
-                run_level(*load_level(level_str, textures), &game);
+                run_level(*level, &game);
                 EndDrawing();
             }
-            
+            free(level);
         }
+
+        BeginDrawing();
+        ClearBackground(GetColor(0x181818FF));
+        draw_grid(scale, 0, 0);
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             switch (selected) {
                 case SELECTION_PLAYER:
-                    builder.player = (MOUSE_POSITION(scale));
+                    builder.player = (MOUSE_POSITION(scale, camera));
                     break;
                 case SELECTION_DOOR:
-                    builder.door = (MOUSE_POSITION(scale));
+                    builder.door = (MOUSE_POSITION(scale, camera));
                     break;
                 case SELECTION_PLATFORM_START:
-                    current_platform.start = (MOUSE_POSITION(scale)); 
+                    current_platform.start = (MOUSE_POSITION(scale, camera)); 
                     selected = SELECTION_PLATFORM_END;
                     break;
                 case SELECTION_PLATFORM_END:
-                    current_platform.end = (Vector2) { MOUSE_POSITION(scale).x + (current_platform.end.x > current_platform.start.x), MOUSE_POSITION(scale).y };
+                    current_platform.end = (Vector2) { MOUSE_POSITION(scale, camera).x + (MOUSE_POSITION(scale, camera).x > current_platform.start.x), MOUSE_POSITION(scale, camera).y };
+                    if(current_platform.end.x < current_platform.start.x){
+                        current_platform.start.x++;
+                    }
                     add_platform_to_builder(current_platform, &builder);
                     reset_current_platform(&current_platform);
                     selected = SELECTION_PLATFORM_START;
@@ -304,10 +300,10 @@ void builder(Cstr creator, float scale){
             }
         }
 
-        BeginDrawing();
 
-        ClearBackground(GetColor(0x181818FF));
-        draw_grid(scale, 0, 0);
+        DrawText("Added platform", SCREEN_WIDTH - MeasureText("Added platform", 30) - 20, 20, 30, WHITE);
+        BuilderPlatform last_added = builder.platforms[builder.platforms_count - 1];
+        DrawText(TextFormat("%.2f %.2f %.2f", last_added.start.x, last_added.start.y, fabsf(last_added.end.x - last_added.start.x)), SCREEN_WIDTH - MeasureText(TextFormat("%.2f %.2f %.2f", last_added.start.x, last_added.start.y, fabsf(last_added.end.x - last_added.start.x)), 30) - 20, 60, 30, GREEN);
 
 
         if(!is_door_reset(builder)){
@@ -330,7 +326,7 @@ void builder(Cstr creator, float scale){
         }
 
         DrawText(TextFormat("Selected: %s", selection_to_string(selected)), 20, 20, 30, YELLOW); 
-        DrawText(TextFormat("Mouse: x%.0f  y%.0f", MOUSE_POSITION(scale).x, MOUSE_POSITION(scale).y), 20, 60, 30, WHITE); 
+        DrawText(TextFormat("Mouse: x%.0f  y%.0f", MOUSE_POSITION(scale, camera).x, MOUSE_POSITION(scale, camera).y), 20, 60, 30, WHITE); 
         // DrawText(TextFormat("Mouse Real: x%.0f  y%.0f", GetMousePosition().x, GetMousePosition().y), 20, 100, 30, WHITE); 
 
         EndDrawing();

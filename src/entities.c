@@ -1,5 +1,6 @@
 #include "entities.h"
 #include "config.h"
+#include "raymath.h"
 #include "utils.h"
 #include "game.h"
 #include <assert.h>
@@ -114,8 +115,13 @@ Platform* make_platform(Vector2 start, float length, float thickness, Color colo
         return NULL;
     }
 
-    platform->start = start;
-    platform->length = length;
+    if(length > 0){
+        platform->start = start;
+        platform->length = length;
+    } else {
+        platform->start = (Vector2){start.x + length, start.y};
+        platform->length = -length;
+    }
     platform->thickness = thickness;
     platform->color = color;
 

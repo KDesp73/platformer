@@ -1,5 +1,5 @@
 creator test
-scale 2.0
+scale 1.0
 player 0 0
 door 10 9
 platform 20 20 10

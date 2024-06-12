@@ -36,9 +36,6 @@ void run_game(){
         .color = PLAYER_COLOR
     };
 
-    Camera2D camera = { 0 };
-    camera.zoom = 1.0f;
-    BeginMode2D(camera);
 
     Levels levels = load_levels_from_dir("assets/levels", game.textures);
 
@@ -129,11 +126,14 @@ int main(int argc, char** argv){
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
     SetTargetFPS(FPS);
+    Camera2D camera = { 0 };
+    camera.zoom = 1.0f;
+    BeginMode2D(camera);
 
     SET_FULLSCREEN(1);
     if(is_builder){
         if(creator != NULL)
-            builder(creator, scale);
+            builder(creator, scale, camera);
         else {
             ERRO("Creator needs to be specified");
             exit(1);
