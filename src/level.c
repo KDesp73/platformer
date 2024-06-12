@@ -7,6 +7,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "textures.h"
+#include "ui.h"
 #include "utils.h"
 #include <assert.h>
 #include <stdio.h>
@@ -32,7 +33,7 @@ void add_level(Levels* levels, Level* level){
     levels->items[levels->count++] = level;
 }
 
-Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2 door_position, Textures textures){
+Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2 door_position, Textures textures, float scale){
     Level* level = (Level*) malloc(sizeof(Level)); 
 
     if(level == NULL) {
@@ -42,7 +43,7 @@ Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2
 
     level->player = (Player) {
         .position = player_position,
-        .size = PLAYER_SIZE,
+        .size = PLAYER_SIZE(scale),
         .color = PLAYER_COLOR,
         .sprite = &textures.items[PLAYER],
         .status = IDLE
@@ -50,7 +51,7 @@ Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2
 
     level->door = (Door) {
         .position = door_position,
-        .size = DOOR_SIZE,
+        .size = DOOR_SIZE(scale),
         .color = DOOR_COLOR,
         .sprite = &textures.items[DOOR]
     };
@@ -242,7 +243,7 @@ Level* load_level(Cstr text, Textures textures) {
         } else if (strcmp(parts[0], "platform") == 0) {
             if (words != 4) PANIC("Invalid number of values in line %zu\n", i + 1);
             Vector2 start = { atof(parts[1]) * BASE * level->scale, atof(parts[2]) * BASE * level->scale };
-            add_platform(make_platform(start, atof(parts[3]) * BASE * level->scale, DEFAULT_PLATFORM_HEIGHT * level->scale, WHITE), &level->platforms);
+            add_platform(make_platform(start, atof(parts[3]) * BASE * level->scale, BASE_PLATFORM_HEIGHT * level->scale, WHITE), &level->platforms);
             INFO("Added platform %.0f %.0f %.0f to level", start.x, start.y, atof(parts[3]));
         } else {
             PANIC("Invalid key '%s' in line %zu\n", parts[0], i + 1);
@@ -352,6 +353,7 @@ void run_level(Level level, Game* game){
 
     // Draw
     ClearBackground(GetColor(0x181818FF));
+    draw_grid(level.scale, 0, 0);
     DrawText(TextFormat("Level %zu", game->level+1), 20, 20, 30, WHITE);
     draw_level(level, game->player, level.textures);
 }

@@ -32,7 +32,7 @@ void run_game(){
         .is_grounded = false,
         .velocity = {0},
         .position = {0},
-        .size = PLAYER_SIZE,
+        .size = PLAYER_SIZE(1.0f),
         .color = PLAYER_COLOR
     };
 
@@ -60,8 +60,8 @@ void run_game(){
                 } else{
                     ClearBackground(GetColor(0x181818FF));
                     Cstr level_complete = TextFormat("LEVEL %zu COMPLETE", game.level+1);
-                    DrawCenteredText(level_complete, SCREEN_HEIGHT/2 - 100, 100, WHITE);
-                    DrawCenteredText("Press Enter to continue", SCREEN_HEIGHT/2 + 100, 70, WHITE);
+                    DrawCenteredText(level_complete, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+                    DrawCenteredText("Press Enter to continue", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
                     if(IsKeyPressed(KEY_ENTER)){
                         game.level++;
                         game.is_level_complete = 0;
@@ -73,8 +73,8 @@ void run_game(){
         } else {
             ClearBackground(GetColor(0x181818FF));
 
-            DrawCenteredText("Game Over", SCREEN_HEIGHT/2 - 100, 100, WHITE);
-            DrawCenteredText("Press Enter to exit", SCREEN_HEIGHT/2 + 100, 70, WHITE);
+            DrawCenteredText("Game Over", SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+            DrawCenteredText("Press Enter to exit", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
 
             if(IsKeyPressed(KEY_ENTER)){
                 clean(&levels, &game);
@@ -89,15 +89,17 @@ void run_game(){
 }
 
 int main(int argc, char** argv){
-    CliArguments args = clib_make_cli_arguments(4,
+    CliArguments args = clib_make_cli_arguments(5,
         clib_create_argument('h', "help", "Prints this message", no_argument),
         clib_create_argument('v', "version", "Prints the program version", no_argument),
         clib_create_argument('b', "builder", "Starts the level builder instead of the game", no_argument),
-        clib_create_argument('c', "creator", "Prints this message", required_argument)
+        clib_create_argument('c', "creator", "Prints this message", required_argument),
+        clib_create_argument('s', "scale", "Sets the scale of the level (default: 1.0f)", required_argument)
     );
 
     int is_builder = 0;
     Cstr creator = NULL; 
+    float scale = 1.0f;
 
 
     struct option* opts = clib_get_options(args);
@@ -116,6 +118,10 @@ int main(int argc, char** argv){
             case 'c':
                 creator = optarg;
                 break;
+            case 's':
+                scale = atof(optarg);
+                if(scale < 1.0f || scale > 2.0f) PANIC("Scale must be between 1 and 2");
+                break;
             default:
                 exit(1);
         }
@@ -127,7 +133,7 @@ int main(int argc, char** argv){
     SET_FULLSCREEN(1);
     if(is_builder){
         if(creator != NULL)
-            builder(creator);
+            builder(creator, scale);
         else {
             ERRO("Creator needs to be specified");
             exit(1);

@@ -22,13 +22,6 @@ void draw_door(Door door){
     }
 }
 
-Vector2 place_door_on_platform(Platform platform){
-    return (Vector2) { 
-        platform.start.x + platform.length / 2.0f - DOOR_SIZE.x / 2.0f,
-        platform.start.y - DOOR_SIZE.y - platform.thickness / 2.0f 
-    };
-}
-
 void draw_player(Player player) {
     if(player.sprite->width <= 0 || player.sprite->height <= 0){
         DrawRectangleV(player.position, (Vector2) {player.size.x, player.size.y}, player.color);
@@ -41,8 +34,8 @@ void draw_player(Player player) {
                     break;
                 case IDLE:
                 case RUNNING_RIGHT:
-                    DrawTexturePro(*player.sprite, (Rectangle) {0,0, 25.0f, 50.0f} , (Rectangle) {player.position.x, player.position.y, player.size.x, player.size.y}, (Vector2) {0}, 0, WHITE);
                     // DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
+                    DrawTexturePro(*player.sprite, (Rectangle) {0,0, 25.0f, 50.0f} , (Rectangle) {player.position.x, player.position.y, player.size.x, player.size.y}, (Vector2) {0}, 0, WHITE);
                     break;
                 default:
                     ERRO("Unknown status");
@@ -58,7 +51,7 @@ void draw_platform(Platform platform, Texture2D sprite){
     } else {
         if(IsTextureReady(sprite)){
             for(size_t i = 0; i < platform.length / sprite.width; ++i){
-                DrawTextureEx(sprite, (Vector2) {platform.start.x + (i * sprite.width), platform.start.y - platform.thickness / 2.0f}, 0, platform.thickness / DEFAULT_PLATFORM_HEIGHT, WHITE);
+                DrawTextureEx(sprite, (Vector2) {platform.start.x + (i * sprite.width), platform.start.y - platform.thickness / 2.0f}, 0, platform.thickness / BASE_PLATFORM_HEIGHT, WHITE);
             }
         }
     }

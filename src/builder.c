@@ -1,16 +1,18 @@
 #include "builder.h"
+#include <math.h>
 #include <string.h>
+#include "clib.h"
 #include "config.h"
+#include "entities.h"
 #include "game.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "textures.h"
 #include "utils.h"
+#include "ui.h"
 #include <stdlib.h>
 #include <time.h>
 
-#define ROWS SCREEN_HEIGHT / CELL_SIZE
-#define COLS SCREEN_WIDTH / CELL_SIZE
 
 
 typedef enum {
@@ -35,17 +37,6 @@ Cstr selection_to_string(Selection selection){
     }
 }
 
-void draw_grid(){
-    Color color = GRAY;
-
-    for(size_t y = 0; y < SCREEN_HEIGHT; ++y){
-        DrawLineV((Vector2) {0, y*CELL_SIZE}, (Vector2){SCREEN_WIDTH, y*CELL_SIZE}, color);
-    }
-    for(size_t x = 0; x < SCREEN_WIDTH; ++x){
-        DrawLineV((Vector2) {x * CELL_SIZE, 0}, (Vector2) {x*CELL_SIZE, SCREEN_HEIGHT}, color);
-    }
-}
-
 #define MAX_PLATFORMS 200
 
 typedef struct {
@@ -61,31 +52,43 @@ typedef struct {
 } Builder;
 
 
-void place(Vector2 position, Vector2 size, Texture2D texture){
-    DrawTextureRec(texture, (Rectangle) {0,0, size.x, size.y}, Vector2Scale(position, CELL_SIZE), WHITE);
+void place(Vector2 position, Vector2 size, Texture2D texture, float scale){
+    DrawTextureRec(texture, (Rectangle) {0,0, size.x, size.y}, Vector2Scale(position, BASE * scale), WHITE);
 }
 
-void place_player(Vector2 position, Textures textures){
-    place(position, PLAYER_SIZE, textures.items[PLAYER]);
+void place_player(Vector2 position, Textures textures, float scale){
+    draw_player((Player){
+        .position = Vector2Scale(position, CELL_SIZE(scale)),
+        .size = PLAYER_SIZE(scale),
+        .color = PLAYER_COLOR,
+        .sprite = &textures.items[PLAYER]
+    });
 }
 
-void place_door(Vector2 position, Textures textures){
-    place(position, DOOR_SIZE, textures.items[DOOR]);
+void place_door(Vector2 position, Textures textures, float scale){
+    draw_door((Door){
+        .position = Vector2Scale(position, CELL_SIZE(scale)),
+        .size = DOOR_SIZE(scale),
+        .color = DOOR_COLOR,
+        .sprite = &textures.items[DOOR]
+    });
 }
 
-void place_platform_tile(Vector2 position, Textures textures){
-    place(position, (Vector2) {CELL_SIZE, CELL_SIZE}, textures.items[PLATFORM]);
+void place_platform_tile(Vector2 position, Textures textures, float scale){
+    place(position, (Vector2) {BASE * scale, BASE * scale}, textures.items[PLATFORM], scale);
 }
-void place_platform(Vector2 start, Vector2 end, Textures textures){
-    if(start.x > end.x){
-        Vector2 temp = start;
-        start = end;
-        end = temp;
-    }
 
-    for(size_t i = start.x; i <= end.x; ++i){
-        place_platform_tile((Vector2) {i, start.y}, textures);
-    }
+void place_platform(Vector2 start, Vector2 end, Textures textures, float scale){
+    draw_platform(
+        (Platform) { 
+            .sprite = &textures.items[PLATFORM], 
+            .thickness = PLATFORM_HEIGHT(scale) * scale, 
+            .start = Vector2Scale(start, CELL_SIZE(scale)),
+            .color = PLATFORM_COLOR,
+            .length = fabsf(start.x - end.x) * CELL_SIZE(scale),
+        }, 
+        textures.items[PLATFORM]
+    );
 }
 
 
@@ -119,16 +122,9 @@ int is_platform_reset(BuilderPlatform platform){
         platform.end.y == 0;
 }
 
-long map(long x, long in_min, long in_max, long out_min, long out_max){
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
 
-
-#define MOUSE_POSITION \
-    (Vector2) { (float) Clamp(map(GetMouseX(), 0, SCREEN_WIDTH, 0, SCREEN_WIDTH / CELL_SIZE), 0, SCREEN_WIDTH), (float) Clamp(map(GetMouseY(), 0, SCREEN_HEIGHT, 0, SCREEN_HEIGHT / CELL_SIZE), 0, SCREEN_HEIGHT) }
-
-Vector2 expand_mouse_position(Vector2 position){
-    return (Vector2) {position.x * CELL_SIZE, position.y * CELL_SIZE};
+Vector2 expand_mouse_position(Vector2 position, float scale){
+    return (Vector2) {position.x * BASE * scale, position.y * BASE * scale};
 }
 
 void add_platform_to_builder(BuilderPlatform platform, Builder* builder){
@@ -140,10 +136,10 @@ void add_platform_to_builder(BuilderPlatform platform, Builder* builder){
     builder->platforms[builder->platforms_count++] = platform;
 }
 
-void place_builder_platforms(Builder builder, Textures textures){
+void place_builder_platforms(Builder builder, Textures textures, float scale){
     for(size_t i = 0; i < builder.platforms_count; ++i){
         BuilderPlatform p = builder.platforms[i];
-        place_platform(p.start, p.end, textures);
+        place_platform(p.start, p.end, textures, scale);
     }
 }
 
@@ -151,8 +147,8 @@ Cstr player_to_string(Vector2 position){
     return TextFormat("player %.0f %.0f", position.x, position.y);
 }
 
-Cstr scale_to_string(){
-    return TextFormat("scale %.1f", SCALE);
+Cstr scale_to_string(float scale){
+    return TextFormat("scale %.1f", scale);
 }
 
 Cstr door_to_string(Vector2 position){
@@ -166,7 +162,11 @@ Cstr platform_to_string(BuilderPlatform platform){
     return TextFormat("platform %.0f %.0f %.0f", left.x, left.y, fabsf(platform.start.x - platform.end.x));
 }
 
-void builder(Cstr creator){
+void builder(Cstr creator, float scale){
+    DEBU("scale: %f", scale);
+    DEBU("Cell Size: %f", CELL_SIZE(scale));
+    DEBU("Rows: %d", ROWS(scale));
+    DEBU("Cols: %d", COLS(scale));
     Textures textures = load_textures(
         "assets/images/jess-30x50.png",
         "assets/images/door-50x80.png",
@@ -202,7 +202,7 @@ void builder(Cstr creator){
 
             Cstr player_text = player_to_string(builder.player);
             Cstr door_text = door_to_string(builder.door);
-            Cstr scale_text = scale_to_string();
+            Cstr scale_text = scale_to_string(scale);
 
             char buffer[1024];
 
@@ -225,17 +225,17 @@ void builder(Cstr creator){
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             switch (selected) {
                 case SELECTION_PLAYER:
-                    builder.player = (MOUSE_POSITION);
+                    builder.player = (MOUSE_POSITION(scale));
                     break;
                 case SELECTION_DOOR:
-                    builder.door = (MOUSE_POSITION);
+                    builder.door = (MOUSE_POSITION(scale));
                     break;
                 case SELECTION_PLATFORM_START:
-                    current_platform.start = (MOUSE_POSITION);
+                    current_platform.start = (MOUSE_POSITION(scale));
                     selected = SELECTION_PLATFORM_END;
                     break;
                 case SELECTION_PLATFORM_END:
-                    current_platform.end = (MOUSE_POSITION);
+                    current_platform.end = (MOUSE_POSITION(scale));
                     add_platform_to_builder(current_platform, &builder);
                     reset_current_platform(&current_platform);
                     selected = SELECTION_PLATFORM_START;
@@ -248,26 +248,29 @@ void builder(Cstr creator){
         BeginDrawing();
 
         ClearBackground(GetColor(0x181818FF));
-        draw_grid();
-        DrawText(TextFormat("Selected: %s", selection_to_string(selected)), 20, 20, 30, WHITE); 
-        DrawText(TextFormat("Mouse: x%.0f  y%.0f", MOUSE_POSITION.x, MOUSE_POSITION.y), 20, 60, 30, WHITE); 
+        draw_grid(scale, 0, 0);
 
-        if(!is_player_reset(builder)){
-            place_player(builder.player, textures);
-        }
 
         if(!is_door_reset(builder)){
-            place_door(builder.door, textures);
+            place_door(builder.door, textures,scale);
         }
 
         if(selected == SELECTION_PLATFORM_END){
-            place_platform_tile(current_platform.start, textures);
+            place_platform_tile(current_platform.start, textures, scale);
         }
         if(!is_platform_reset(current_platform)){
-            place_platform(current_platform.start, current_platform.end, textures);
+            place_platform(current_platform.start, current_platform.end, textures, scale);
         }
     
-        place_builder_platforms(builder, textures);
+        place_builder_platforms(builder, textures, scale);
+
+        if(!is_player_reset(builder)){
+            place_player(builder.player, textures, scale);
+        }
+
+        DrawText(TextFormat("Selected: %s", selection_to_string(selected)), 20, 20, 30, YELLOW); 
+        DrawText(TextFormat("Mouse: x%.0f  y%.0f", MOUSE_POSITION(scale).x, MOUSE_POSITION(scale).y), 20, 60, 30, WHITE); 
+        // DrawText(TextFormat("Mouse Real: x%.0f  y%.0f", GetMousePosition().x, GetMousePosition().y), 20, 100, 30, WHITE); 
 
         EndDrawing();
     }

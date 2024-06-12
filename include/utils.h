@@ -6,6 +6,7 @@
 #include "raylib.h"
 
 
+long map(long x, long in_min, long in_max, long out_min, long out_max);
 char* get_current_timestamp();
 void copy_vector2(Vector2* dest, const Vector2 src);
 void copy_color(Color* dest, const Color src);
