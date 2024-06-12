@@ -1,8 +1,28 @@
 creator test
-scale 1.0
+scale 2.0
 player 0 0
 door 10 9
 platform 20 20 10
 platform 4 2 5
 platform 30 10 1
+platform 24 18 7
+platform 35 12 3
+platform 40 20 5
+platform 22 15 9
+platform 38 25 2
+platform 31 19 6
+platform 27 14 4
+platform 29 21 8
+platform 33 23 1
+platform 36 11 10
+platform 42 16 7
+platform 39 13 5
+platform 28 24 3
+platform 34 22 9
+platform 30 17 6
+platform 37 26 4
+platform 25 20 8
+platform 32 18 2
+platform 41 15 10
+platform 23 19 1
 platform -1 -1 0

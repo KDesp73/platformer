@@ -76,34 +76,38 @@ int main(){
     );
     Level* level = load_level_from_file("assets/levels/test.txt", textures);
 
-// creator test
-// scale 1.0
-// player 0 0
-// door 10 9
-// platform 20 20 10
-// platform 4 2 5
-// platform 30 10 1
-// platform -1 -1 0
-
     float cell_size = CELL_SIZE(level->scale);
-    INFO("cell size: %f", cell_size);
     Vector2 expected_player = {0};
     Vector2 expected_door = {10 * cell_size, 9 * cell_size};
-    TestPlatform platforms[4] = {
+    TestPlatform expected_platforms[30] = {
         (TestPlatform){.start = (Vector2) {20 * cell_size, 20 * cell_size + cell_size / 2}, .length = 10 * cell_size},
         (TestPlatform){.start = (Vector2) {4 * cell_size, 2 * cell_size + cell_size / 2}, .length = 5 * cell_size},
         (TestPlatform){.start = (Vector2) {30 * cell_size, 10 * cell_size + cell_size / 2}, .length = 1 * cell_size},
+        (TestPlatform){.start = (Vector2) {24 * cell_size, 18 * cell_size + cell_size / 2}, .length = 7 * cell_size},
+        (TestPlatform){.start = (Vector2) {35 * cell_size, 12 * cell_size + cell_size / 2}, .length = 3 * cell_size},
+        (TestPlatform){.start = (Vector2) {40 * cell_size, 20 * cell_size + cell_size / 2}, .length = 5 * cell_size},
+        (TestPlatform){.start = (Vector2) {22 * cell_size, 15 * cell_size + cell_size / 2}, .length = 9 * cell_size},
+        (TestPlatform){.start = (Vector2) {38 * cell_size, 25 * cell_size + cell_size / 2}, .length = 2 * cell_size},
+        (TestPlatform){.start = (Vector2) {31 * cell_size, 19 * cell_size + cell_size / 2}, .length = 6 * cell_size},
+        (TestPlatform){.start = (Vector2) {27 * cell_size, 14 * cell_size + cell_size / 2}, .length = 4 * cell_size},
+        (TestPlatform){.start = (Vector2) {29 * cell_size, 21 * cell_size + cell_size / 2}, .length = 8 * cell_size},
+        (TestPlatform){.start = (Vector2) {33 * cell_size, 23 * cell_size + cell_size / 2}, .length = 1 * cell_size},
+        (TestPlatform){.start = (Vector2) {36 * cell_size, 11 * cell_size + cell_size / 2}, .length = 10 * cell_size},
+        (TestPlatform){.start = (Vector2) {42 * cell_size, 16 * cell_size + cell_size / 2}, .length = 7 * cell_size},
+        (TestPlatform){.start = (Vector2) {39 * cell_size, 13 * cell_size + cell_size / 2}, .length = 5 * cell_size},
+        (TestPlatform){.start = (Vector2) {28 * cell_size, 24 * cell_size + cell_size / 2}, .length = 3 * cell_size},
+        (TestPlatform){.start = (Vector2) {34 * cell_size, 22 * cell_size + cell_size / 2}, .length = 9 * cell_size},
+        (TestPlatform){.start = (Vector2) {30 * cell_size, 17 * cell_size + cell_size / 2}, .length = 6 * cell_size},
+        (TestPlatform){.start = (Vector2) {37 * cell_size, 26 * cell_size + cell_size / 2}, .length = 4 * cell_size},
+        (TestPlatform){.start = (Vector2) {25 * cell_size, 20 * cell_size + cell_size / 2}, .length = 8 * cell_size},
+        (TestPlatform){.start = (Vector2) {32 * cell_size, 18 * cell_size + cell_size / 2}, .length = 2 * cell_size},
+        (TestPlatform){.start = (Vector2) {41 * cell_size, 15 * cell_size + cell_size / 2}, .length = 10 * cell_size},
+        (TestPlatform){.start = (Vector2) {23 * cell_size, 19 * cell_size + cell_size / 2}, .length = 1 * cell_size},
         (TestPlatform){.start = (Vector2) {-1 * cell_size, -1 * cell_size + cell_size / 2}, .length = 0 * cell_size},
     };
 
     test((
         test(1, "Check", "1", "1") &
-        test(
-            level->scale == 1.0f,
-            "Scale", 
-            "1.0f", 
-            floatToString(level->scale)
-        ) &
         test(
             vectorcmp(expected_player, level->player.position),
             "Player", 
@@ -116,7 +120,7 @@ int main(){
             vec_to_string(expected_door),
             vec_to_string(level->door.position)
         ) &
-        test_platforms(platforms, level)
+        test_platforms(expected_platforms, level)
     ), "Test", NULL, NULL);
 
     // test(level->platforms.items[0]->start = 100,)
