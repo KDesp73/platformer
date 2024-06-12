@@ -1,0 +1,8 @@
+creator test
+scale 1.0
+player 0 0
+door 10 9
+platform 20 20 10
+platform 4 2 5
+platform 30 10 1
+platform -1 -1 0

@@ -179,7 +179,6 @@ Level* load_level(Cstr text, Textures textures) {
     if (lines == NULL) {
         PANIC("Failed to split file contents\n");
     }
-    DEBU("Number of lines: %d", lines_count);
 
     // Allocate memory for Level
     Level* level = (Level*) malloc(sizeof(Level));
@@ -208,7 +207,6 @@ Level* load_level(Cstr text, Textures textures) {
         }
         free(parts);
     }
-    DEBU("Number of platforms: %zu", platforms_count);
 
     level->platforms = allocate_platform_collection(platforms_count + 1); // +1 for base platform
     level->platforms.count = 0;
@@ -244,7 +242,6 @@ Level* load_level(Cstr text, Textures textures) {
             if (words != 4) PANIC("Invalid number of values in line %zu\n", i + 1);
             Vector2 start = { atof(parts[1]), atof(parts[2]) };
             start = Vector2Scale(start, CELL_SIZE(level->scale));
-            INFO("Added platform %.0f %.0f %.0f to level", start.x, start.y, atof(parts[3]) * CELL_SIZE(level->scale));
             add_platform(make_platform((Vector2) {start.x, start.y + CELL_SIZE(level->scale) / 2}, atof(parts[3]) * CELL_SIZE(level->scale), PLATFORM_HEIGHT(level->scale), WHITE), &level->platforms);
         } else {
             PANIC("Invalid key '%s' in line %zu\n", parts[0], i + 1);
@@ -276,7 +273,7 @@ Level* load_level(Cstr text, Textures textures) {
 
     level->textures = textures;
 
-    DEBU("level scale: %.1f", level->scale);
+    INFO("level scale: %.1f", level->scale);
 
     return level;
 }
@@ -322,7 +319,7 @@ Levels load_levels_from_dir(Cstr path, Textures textures){
 
     Levels levels = allocate_levels(count);
     for(size_t i = 0; i < count; ++i){
-        DEBU("Loaded %s", PATH(path, files[i]));
+        INFO("Loaded %s", PATH(path, files[i]));
         add_level(&levels, load_level_from_file(PATH(path, files[i]), textures));
     }
     
@@ -356,7 +353,7 @@ void run_level(Level level, Game* game){
 
     // Draw
     ClearBackground(GetColor(0x181818FF));
-    draw_grid(level.scale, 0, 0);
+    // draw_grid(level.scale, 0, 0);
     DrawText(TextFormat("Level %zu", game->level+1), 20, 20, 30, WHITE);
     draw_level(level, game->player, level.textures);
 }

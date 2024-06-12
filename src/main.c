@@ -47,8 +47,6 @@ void run_game(){
     }
 
     copy_player(&game.player, levels.items[0]->player);
-    DEBU("level 1 player coords: %.0f %.0f", game.player.position.x, game.player.position.y);
-    DEBU("level 1 door coords: %.0f %.0f", levels.items[0]->door.position.x, levels.items[0]->door.position.y);
     while(!WindowShouldClose()){
         BeginDrawing();
 
@@ -79,7 +77,7 @@ void run_game(){
             DrawCenteredText("Press Enter to exit", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
 
             if(IsKeyPressed(KEY_ENTER)){
-                clean(&levels, &game);
+                clean_and_exit(&levels, &game);
                 exit(0);
             }
         }
@@ -87,7 +85,7 @@ void run_game(){
         EndDrawing();
     }
 
-    clean(&levels, &game);
+    clean_and_exit(&levels, &game);
 }
 
 int main(int argc, char** argv){

@@ -6,6 +6,7 @@ TODO: (demo) Animation Framework
 TODO: (demo) Reliable level builder and loader
 TODO: (demo) Clean Code
 TODO: (demo) README
+TODO: (demo) Add text to level
 DONE: level builder
 DONE: load level from file
 DONE: better assets

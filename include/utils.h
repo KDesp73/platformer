@@ -14,7 +14,7 @@ void copy_texture2D(Texture2D* dest, const Texture2D src);
 void copy_player(Player* dest, const Player src);
 void print_vector2(Vector2 vec, Cstr tag);
 
-void clean(Levels* levels, Game* game);
+void clean_and_exit(Levels* levels, Game* game);
 
 #define SET_FULLSCREEN(x) \
     do { \

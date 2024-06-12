@@ -72,7 +72,7 @@ void copy_player(Player* dest, const Player src){
 }
 
 
-void clean(Levels* levels, Game* game){
+void clean_and_exit(Levels* levels, Game* game){
     for(size_t i = 0; i < levels->count; ++i){
         free_platforms(levels->items[i]->platforms);
     }
