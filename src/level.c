@@ -263,15 +263,18 @@ Level* load_level(Cstr text, Textures textures) {
     level->player.position = Vector2Scale(level->player.position, CELL_SIZE(level->scale));
     level->player.size = Vector2Scale(BASE_PLAYER_SIZE, (level->scale));
     level->player.color = PLAYER_COLOR;
-    level->player.sprite = &textures.items[PLAYER];
+    if(textures.items != NULL)
+        level->player.sprite = &textures.items[PLAYER];
     level->player.status = IDLE;
 
     level->door.position = Vector2Scale(level->door.position, CELL_SIZE(level->scale));
     level->door.size = Vector2Scale(BASE_DOOR_SIZE, (level->scale));
     level->door.color = DOOR_COLOR;
-    level->door.sprite = &textures.items[DOOR];
+    if(textures.items != NULL)
+        level->door.sprite = &textures.items[DOOR];
 
-    level->textures = textures;
+    if(textures.items != NULL)
+        level->textures = textures;
 
     INFO("level scale: %.1f", level->scale);
 

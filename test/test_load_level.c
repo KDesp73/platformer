@@ -2,6 +2,7 @@
 #include "entities.h"
 #include "game.h"
 #include "raylib.h"
+#include "textures.h"
 #include <stdio.h>
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
@@ -67,14 +68,7 @@ int test_platforms(TestPlatform* expected_platforms, Level* level){
 }
 
 int main(){
-    InitWindow(0, 0, "Test");
-    Textures textures = load_textures(
-        "assets/images/jess-30x50.png",
-        "assets/images/door-50x80.png",
-        "assets/images/wood-25x25.png",
-        NULL // Teriminate the list
-    );
-    Level* level = load_level_from_file("assets/levels/test.txt", textures);
+    Level* level = load_level_from_file("assets/levels/test.txt", (Textures) {.items = NULL});
 
     float cell_size = CELL_SIZE(level->scale);
     Vector2 expected_player = {0};
@@ -123,9 +117,6 @@ int main(){
         test_platforms(expected_platforms, level)
     ), "Test", NULL, NULL);
 
-    // test(level->platforms.items[0]->start = 100,)
-
-    CloseWindow();
 
     return 0;
 }
