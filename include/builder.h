@@ -1,9 +1,8 @@
 #ifndef BUILDER_H
 #define BUILDER_H
 
-#include "raylib.h"
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
-void builder(Cstr creator, float scale, Camera2D camera);
+void builder(Cstr creator, float scale);
 
 #endif // BUILDER_H

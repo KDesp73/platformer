@@ -36,6 +36,10 @@ void run_game(){
         .color = PLAYER_COLOR
     };
 
+    Camera2D camera = { 0 };
+    camera.zoom = 1.0f;
+    BeginMode2D(camera);
+
 
     Levels levels = load_levels_from_dir("assets/levels", game.textures);
 
@@ -50,7 +54,6 @@ void run_game(){
         if(!game.is_over){
             if(!game.is_level_complete){
                 run_level(*levels.items[game.level], &game);
-                show_mouse_coords_at_cursor();
             } else {
                 if(game.level == levels.count-1){
                     game.is_over = true;
@@ -126,14 +129,11 @@ int main(int argc, char** argv){
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
     SetTargetFPS(FPS);
-    Camera2D camera = { 0 };
-    camera.zoom = 1.0f;
-    BeginMode2D(camera);
 
     SET_FULLSCREEN(1);
     if(is_builder){
         if(creator != NULL)
-            builder(creator, scale, camera);
+            builder(creator, scale);
         else {
             ERRO("Creator needs to be specified");
             exit(1);

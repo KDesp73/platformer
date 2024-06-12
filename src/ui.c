@@ -38,16 +38,14 @@ void draw_grid(float scale, int draw_coords, int draw_center){
     }
 }
 
-Vector2 mouse_cell_position(float scale, Camera2D camera) {
+Vector2 mouse_cell_position(float scale) {
     float cellSize = CELL_SIZE(scale);
 
-    Vector2 real_mouse = GetWorldToScreen2D(GetMousePosition(), camera);
-
     // Map mouse coordinates to cell grid
-    int x_cell_over = (int)map((float)real_mouse.x, 0, (float)SCREEN_WIDTH, 0, (float)(SCREEN_WIDTH / cellSize));
+    int x_cell_over = (int)map((float)GetMousePosition().x, 0, (float)SCREEN_WIDTH, 0, (float)(SCREEN_WIDTH / cellSize));
     x_cell_over = Clamp(x_cell_over, 0, SCREEN_WIDTH / cellSize - 1);
 
-    int y_cell_over = (int)map((float)real_mouse.y, 0, (float)SCREEN_HEIGHT, 0, (float)(SCREEN_HEIGHT / cellSize));
+    int y_cell_over = (int)map((float)GetMousePosition().y, 0, (float)SCREEN_HEIGHT, 0, (float)(SCREEN_HEIGHT / cellSize));
     y_cell_over = Clamp(y_cell_over, 0, SCREEN_HEIGHT / cellSize - 1);
 
     Vector2 result;
@@ -56,7 +54,11 @@ Vector2 mouse_cell_position(float scale, Camera2D camera) {
     return result;
 }
 
-void show_mouse_coords_at_cursor(){
-    Cstr text = TextFormat("%.2f %.2f", GetMousePosition().x, GetMousePosition().y);
-    DrawText(text, GetMousePosition().x + 20, GetMousePosition().y, 10, YELLOW);
+void show_mouse_coords_at_cursor(int font_size, Color color){
+    show_coords_at_cursor(GetMousePosition(), font_size, color);
+}
+
+void show_coords_at_cursor(Vector2 coords, int font_size, Color color){
+    Cstr text = TextFormat("%.2f %.2f", coords.x, coords.y);
+    DrawText(text, GetMousePosition().x + 20, GetMousePosition().y, font_size, color);
 }

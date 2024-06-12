@@ -197,7 +197,7 @@ char* export_level(Builder builder, float scale, Cstr creator){
     return buffer;
 }
 
-void builder(Cstr creator, float scale, Camera2D camera){
+void builder(Cstr creator, float scale){
     DEBU("scale: %f", scale);
     DEBU("Cell Size: %f", CELL_SIZE(scale));
     DEBU("Rows: %d", ROWS(scale));
@@ -244,15 +244,12 @@ void builder(Cstr creator, float scale, Camera2D camera){
 
                 for (size_t i = 0; i < builder.platforms_count; ++i) {
                     BuilderPlatform platform = builder.platforms[i];
-                    Cstr platform_str = TextFormat(
-                            "platforms[%zu] %.2f %.2f %.2f", 
-                            i, 
-                            platform.start.x, 
-                            platform.start.y,
-                            fabsf(platform.start.x - platform.end.x)
-                    );
+                    Cstr platform_str = platform_to_string(platform);
                     DrawText(platform_str, 20, 20 + 40*i, 30, WHITE);
                 }    
+
+                DrawText(player_to_string(builder.player), 600, 20, 30, RED);
+                DrawText(door_to_string(builder.door), 600, 60, 30, GREEN);
             
                 EndDrawing(); 
             }
@@ -299,17 +296,17 @@ void builder(Cstr creator, float scale, Camera2D camera){
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             switch (selected) {
                 case SELECTION_PLAYER:
-                    builder.player = (MOUSE_POSITION(scale, camera));
+                    builder.player = (MOUSE_POSITION(scale));
                     break;
                 case SELECTION_DOOR:
-                    builder.door = (MOUSE_POSITION(scale, camera));
+                    builder.door = (MOUSE_POSITION(scale));
                     break;
                 case SELECTION_PLATFORM_START:
-                    current_platform.start = (MOUSE_POSITION(scale, camera)); 
+                    current_platform.start = (MOUSE_POSITION(scale)); 
                     selected = SELECTION_PLATFORM_END;
                     break;
                 case SELECTION_PLATFORM_END:
-                    current_platform.end = (Vector2) { MOUSE_POSITION(scale, camera).x + (MOUSE_POSITION(scale, camera).x > current_platform.start.x), MOUSE_POSITION(scale, camera).y };
+                    current_platform.end = (Vector2) { MOUSE_POSITION(scale).x + (MOUSE_POSITION(scale).x > current_platform.start.x), MOUSE_POSITION(scale).y };
                     if(current_platform.end.x < current_platform.start.x){
                         current_platform.start.x++;
                     }
@@ -321,12 +318,6 @@ void builder(Cstr creator, float scale, Camera2D camera){
                     break;
             }
         }
-
-
-        DrawText("Added platform", SCREEN_WIDTH - MeasureText("Added platform", 30) - 20, 20, 30, WHITE);
-        BuilderPlatform last_added = builder.platforms[builder.platforms_count - 1];
-        DrawText(TextFormat("%.2f %.2f %.2f", last_added.start.x, last_added.start.y, fabsf(last_added.end.x - last_added.start.x)), SCREEN_WIDTH - MeasureText(TextFormat("%.2f %.2f %.2f", last_added.start.x, last_added.start.y, fabsf(last_added.end.x - last_added.start.x)), 30) - 20, 60, 30, GREEN);
-
 
         if(!is_door_reset(builder)){
             place_door(builder.door, textures,scale);
@@ -348,7 +339,8 @@ void builder(Cstr creator, float scale, Camera2D camera){
         }
 
         DrawText(TextFormat("Selected: %s", selection_to_string(selected)), 20, 20, 30, YELLOW); 
-        DrawText(TextFormat("Mouse: x%.0f  y%.0f", MOUSE_POSITION(scale, camera).x, MOUSE_POSITION(scale, camera).y), 20, 60, 30, WHITE); 
+        show_coords_at_cursor(MOUSE_POSITION(scale), 20, WHITE);
+        // DrawText(TextFormat("Mouse: x%.0f  y%.0f", MOUSE_POSITION(scale, camera).x, MOUSE_POSITION(scale, camera).y), 20, 60, 30, WHITE); 
         // DrawText(TextFormat("Mouse Real: x%.0f  y%.0f", GetMousePosition().x, GetMousePosition().y), 20, 100, 30, WHITE); 
 
         EndDrawing();
