@@ -22,6 +22,7 @@ typedef enum {
     KEY_PLATFORM = KEY_F,
     KEY_RESET = KEY_R,
     KEY_QUIT = KEY_Q,
+    KEY_DEBUG = KEY_APOSTROPHE,
 } BuilderKeys;
 
 
@@ -154,7 +155,7 @@ void place_builder_platforms(Builder builder, Textures textures, float scale){
 }
 
 Cstr player_to_string(Vector2 position){
-    return TextFormat("player %.0f %.0f", position.x, position.y);
+    return TextFormat("player %.2f %.2f", position.x, position.y);
 }
 
 Cstr scale_to_string(float scale){
@@ -162,14 +163,14 @@ Cstr scale_to_string(float scale){
 }
 
 Cstr door_to_string(Vector2 position){
-    return TextFormat("door %.0f %.0f", position.x, position.y);
+    return TextFormat("door %.2f %.2f", position.x, position.y);
 }
 
 Cstr platform_to_string(BuilderPlatform platform){
     Vector2 left;
-    if(platform.start.x <= platform.end.y) left = platform.start;
-    else if(platform.start.x > platform.end.y) left = platform.end;
-    return TextFormat("platform %.0f %.0f %.0f", left.x, left.y, fabsf(platform.end.x - platform.start.x));
+    if(platform.start.x <= platform.end.x) copy_vector2(&left, platform.start);
+    else if(platform.start.x > platform.end.x) copy_vector2(&left, platform.end);
+    return TextFormat("platform %.2f %.2f %.2f", left.x, left.y, fabsf(platform.end.x - platform.start.x));
 }
 
 char* export_level(Builder builder, float scale, Cstr creator){
@@ -236,6 +237,27 @@ void builder(Cstr creator, float scale, Camera2D camera){
             exit(0);
         }
 
+        if(IsKeyPressed(KEY_DEBUG)){
+            while(!IsKeyPressed(KEY_QUIT) && !WindowShouldClose()){
+                BeginDrawing();
+                ClearBackground(GetColor(0x181818FF));
+
+                for (size_t i = 0; i < builder.platforms_count; ++i) {
+                    BuilderPlatform platform = builder.platforms[i];
+                    Cstr platform_str = TextFormat(
+                            "platforms[%zu] %.2f %.2f %.2f", 
+                            i, 
+                            platform.start.x, 
+                            platform.start.y,
+                            fabsf(platform.start.x - platform.end.x)
+                    );
+                    DrawText(platform_str, 20, 20 + 40*i, 30, WHITE);
+                }    
+            
+                EndDrawing(); 
+            }
+        }
+
         if(IsKeyPressed(KEY_TEST)){
             Cstr level_str = export_level(builder, scale, creator);
             Game game = {
@@ -262,7 +284,7 @@ void builder(Cstr creator, float scale, Camera2D camera){
             Level* level = load_level(level_str, game.textures);
             copy_vector2(&game.player.position, level->player.position);
             copy_vector2(&game.player.size, level->player.size);
-            while(!IsKeyPressed(KEY_QUIT)){
+            while(!IsKeyPressed(KEY_QUIT) && !WindowShouldClose()){
                 BeginDrawing();
                 run_level(*level, &game);
                 EndDrawing();

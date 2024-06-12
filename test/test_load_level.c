@@ -69,7 +69,7 @@ int test_platforms(TestPlatform* expected_platforms, Level* level){
 
 int main(){
     InitWindow(0, 0, "Test");
-    Level* level = load_level_from_file("assets/levels/test.txt", (Textures) {.items = NULL});
+    Level* level = load_level_from_file("test/test.txt", (Textures) {.items = NULL});
 
     float cell_size = CELL_SIZE(level->scale);
     Vector2 expected_player = {0, 0};
