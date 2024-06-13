@@ -7,10 +7,12 @@
 #include "clib.h"
 #include "entities.h"
 
-#define PLAYER_TOP(player) (player->position.y)
+#define PADDING 15 // Should scale
+
+#define PLAYER_TOP(player) (player->position.y + PADDING)
 #define PLAYER_BOTTOM(player) (player->position.y + player->size.y)
-#define PLAYER_LEFT(player) (player->position.x)
-#define PLAYER_RIGHT(player) (player->position.x + player->size.x)
+#define PLAYER_LEFT(player) (player->position.x + PADDING)
+#define PLAYER_RIGHT(player) (player->position.x + player->size.x - PADDING)
 
 #define PLATFORM_TOP(platform) (platform->start.y - platform->thickness / 2.0f)
 #define PLATFORM_BOTTOM(platform) (platform->start.y + platform->thickness / 2.0f)

@@ -47,7 +47,8 @@ void run_game(){
         PANIC("Couldn't load levels");
     }
 
-    copy_player(&game.player, levels.items[0]->player);
+    // copy_player(&game.player, levels.items[0]->player);
+    game.player = levels.items[0]->player;
     while(!WindowShouldClose()){
         BeginDrawing();
 
@@ -65,7 +66,7 @@ void run_game(){
                     if(IsKeyPressed(KEY_ENTER)){
                         game.level++;
                         game.is_level_complete = 0;
-                        copy_player(&game.player, levels.items[game.level]->player);
+                        // copy_player(&game.player, levels.items[game.level]->player);
                         game.player = levels.items[game.level]->player;
                     }
                 }
@@ -120,7 +121,7 @@ int main(int argc, char** argv){
                 break;
             case 's':
                 scale = atof(optarg);
-                if(scale < 1.0f || scale > 2.0f) PANIC("Scale must be between 1 and 2");
+                if(scale < .5f || scale > 2.0f) PANIC("Scale must be between 0.5 and 2.0");
                 break;
             default:
                 exit(1);

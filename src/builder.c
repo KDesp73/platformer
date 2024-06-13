@@ -91,7 +91,6 @@ void place_platform_tile(Vector2 position, Textures textures, float scale){
 
 void place_platform(Vector2 start, Vector2 end, Textures textures, float scale){
     Vector2 left = (start.x >= end.x) ? end : start;
-    Vector2 right = (start.x >= end.x) ? start : end;
     for(size_t i = 0; i < fabsf(start.x - end.x); i++){
         Vector2 tile_position = {
             .x = left.x + i,
@@ -198,10 +197,6 @@ char* export_level(Builder builder, float scale, Cstr creator){
 }
 
 void builder(Cstr creator, float scale){
-    DEBU("scale: %f", scale);
-    DEBU("Cell Size: %f", CELL_SIZE(scale));
-    DEBU("Rows: %d", ROWS(scale));
-    DEBU("Cols: %d", COLS(scale));
     Textures textures = load_textures(
         "assets/images/jess-30x50.png",
         "assets/images/door-50x80.png",
