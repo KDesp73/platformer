@@ -77,7 +77,7 @@ void draw_platform(Platform platform, Texture2D sprite) {
             float scale = ceilf(platform.thickness / BASE);
             float cell_size = CELL_SIZE(scale);
             Rectangle src = {0, 0, sprite.width, sprite.height};
-            for (float i = 0; i < (cell_size * platform.length / cell_size); i += cell_size) {
+            for (float i = 0; i < (cell_size * platform.length / cell_size) - 1; i += cell_size) {
                 Rectangle dest = {
                     platform.start.x + i, 
                     platform.start.y - platform.thickness / 2.0f, 

@@ -346,17 +346,13 @@ void run_level(Level level, Game* game){
     }
 
     // CHEAT
-    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-        copy_vector2(&game->player.position, GetMousePosition());
-    }
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) game->player.position = GetMousePosition();
+    if(IsKeyPressed(KEY_N)) game->is_level_complete = true;
     
-    if(IsKeyPressed(KEY_N)){
-        game->is_level_complete = true;
-    }
 
     // Draw
     ClearBackground(GetColor(0x181818FF));
     // draw_grid(level.scale, false, false);
-    DrawText(TextFormat("Level %zu", game->level+1), 20, 20, 30, WHITE);
     draw_level(level, game->player, level.textures);
+    DrawText(TextFormat("Level %zu", game->level+1), 20, 20, 30, WHITE);
 }

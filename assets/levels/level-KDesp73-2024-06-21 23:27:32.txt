@@ -1,0 +1,13 @@
+creator KDesp73
+scale 1.0
+player 0.00 24.00
+door 45.00 15.00
+platform 0.00 26.00 48.00
+platform 3.00 24.00 1.00
+platform 9.00 23.00 1.00
+platform 15.00 22.00 1.00
+platform 21.00 21.00 1.00
+platform 27.00 20.00 1.00
+platform 33.00 19.00 1.00
+platform 39.00 18.00 1.00
+platform -1.00 -1.00 1.00

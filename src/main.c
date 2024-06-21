@@ -21,7 +21,7 @@ void run_game(){
         .is_level_complete = false,
         .textures = load_textures(
             "assets/images/jess-30x50.png",
-            "assets/images/door-50x80.png",
+            "assets/images/door-50x75.png",
             "assets/images/wood-25x25.png",
             NULL // Teriminate the list
         ),
@@ -122,12 +122,13 @@ int main(int argc, char** argv){
             case 's':
                 scale = atof(optarg);
                 if(scale < .5f || scale > 2.0f) PANIC("Scale must be between 0.5 and 2.0");
-                break;
+                exit(1);
             default:
                 exit(1);
         }
     }
 
+    SetTraceLogLevel(LOG_WARNING);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
     SetTargetFPS(FPS);
 

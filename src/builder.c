@@ -91,7 +91,7 @@ void place_platform_tile(Vector2 position, Textures textures, float scale){
 
 void place_platform(Vector2 start, Vector2 end, Textures textures, float scale){
     Vector2 left = (start.x >= end.x) ? end : start;
-    for(size_t i = 0; i < fabsf(start.x - end.x); i++){
+    for(size_t i = 0; i < fabsf(start.x - end.x) + 1; i++){
         Vector2 tile_position = {
             .x = left.x + i,
             .y = start.y
@@ -169,7 +169,7 @@ Cstr platform_to_string(BuilderPlatform platform){
     Vector2 left;
     if(platform.start.x <= platform.end.x) copy_vector2(&left, platform.start);
     else if(platform.start.x > platform.end.x) copy_vector2(&left, platform.end);
-    return TextFormat("platform %.2f %.2f %.2f", left.x, left.y, fabsf(platform.end.x - platform.start.x));
+    return TextFormat("platform %.2f %.2f %.2f", left.x, left.y, fabsf(platform.end.x - platform.start.x) + 1);
 }
 
 char* export_level(Builder builder, float scale, Cstr creator){
@@ -301,10 +301,7 @@ void builder(Cstr creator, float scale){
                     selected = SELECTION_PLATFORM_END;
                     break;
                 case SELECTION_PLATFORM_END:
-                    current_platform.end = (Vector2) { MOUSE_POSITION(scale).x + (MOUSE_POSITION(scale).x > current_platform.start.x), MOUSE_POSITION(scale).y };
-                    if(current_platform.end.x < current_platform.start.x){
-                        current_platform.start.x++;
-                    }
+                    current_platform.end = (Vector2) { MOUSE_POSITION(scale).x, MOUSE_POSITION(scale).y };
                     add_platform_to_builder(current_platform, &builder);
                     reset_current_platform(&current_platform);
                     selected = SELECTION_PLATFORM_START;

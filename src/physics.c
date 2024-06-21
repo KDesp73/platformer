@@ -7,7 +7,7 @@
 #include "clib.h"
 #include "entities.h"
 
-#define PADDING 15 // Should scale
+#define PADDING 10 // Should scale
 
 #define PLAYER_TOP(player) (player->position.y + PADDING)
 #define PLAYER_BOTTOM(player) (player->position.y + player->size.y)
