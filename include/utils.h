@@ -14,6 +14,17 @@ void copy_texture2D(Texture2D* dest, const Texture2D src);
 void copy_player(Player* dest, const Player src);
 void print_vector2(Vector2 vec, Cstr tag);
 
+#define COPY_PLAYER(dest, src) \
+    do { \
+        dest.position = src.position; \
+        dest.size = src.size; \
+        dest.sprite = src.sprite; \
+        dest.color = src.color; \
+        dest.status = src.status; \
+        dest.velocity = src.velocity; \
+        dest.is_grounded = src.is_grounded; \
+    } while(0);
+
 void clean_and_exit(Levels* levels, Game* game);
 
 #define SET_FULLSCREEN(x) \

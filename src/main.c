@@ -47,8 +47,8 @@ void run_game(){
         PANIC("Couldn't load levels");
     }
 
-    // copy_player(&game.player, levels.items[0]->player);
-    game.player = levels.items[0]->player;
+    COPY_PLAYER(game.player, levels.items[0]->player);
+    print_vector2(game.player.position, "game.player");
     while(!WindowShouldClose()){
         BeginDrawing();
 
@@ -63,11 +63,12 @@ void run_game(){
                     Cstr level_complete = TextFormat("LEVEL %zu COMPLETE", game.level+1);
                     DrawCenteredText(level_complete, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
                     DrawCenteredText("Press Enter to continue", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
+
                     if(IsKeyPressed(KEY_ENTER)){
                         game.level++;
                         game.is_level_complete = 0;
-                        // copy_player(&game.player, levels.items[game.level]->player);
-                        game.player = levels.items[game.level]->player;
+                        COPY_PLAYER(game.player, levels.items[game.level]->player);
+                        print_vector2(game.player.position, "game.player");
                     }
                 }
             }
@@ -121,8 +122,11 @@ int main(int argc, char** argv){
                 break;
             case 's':
                 scale = atof(optarg);
-                if(scale < .5f || scale > 2.0f) PANIC("Scale must be between 0.5 and 2.0");
-                exit(1);
+                if(scale < .5f || scale > 2.0f) {
+                    PANIC("Scale must be between 0.5 and 2.0");
+                    exit(1);
+                }
+                break;
             default:
                 exit(1);
         }

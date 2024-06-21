@@ -352,7 +352,6 @@ void run_level(Level level, Game* game){
 
     // Draw
     ClearBackground(GetColor(0x181818FF));
-    // draw_grid(level.scale, false, false);
     draw_level(level, game->player, level.textures);
     DrawText(TextFormat("Level %zu", game->level+1), 20, 20, 30, WHITE);
 }
