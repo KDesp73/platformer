@@ -4,6 +4,7 @@
 #include "raymath.h"
 #include "utils.h"
 #include <assert.h>
+#include <math.h>
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
 #include "entities.h"
@@ -132,13 +133,18 @@ void update_player(Player* player, float windowWidth, float windowHeight, float 
 void move_ghost(Ghost* ghost, Vector2 playerPos, float scale)
 {
     Vector2 direction = {playerPos.x - ghost->position.x, playerPos.y - ghost->position.y};
-    if(direction.x < 0) ghost->status = GHOST_STATUS_RUNNING_LEFT;
-    else ghost->status = GHOST_STATUS_RUNNING_RIGHT;
-    direction = NormalizeVector2(direction);
-    ghost->velocity.x = direction.x * GHOST_STEP(scale) * DT;
-    ghost->velocity.y = direction.y * GHOST_STEP(scale) * DT;
+    if(fabsf(direction.x) >= GHOST_AGRO_RANGE(scale) && fabsf(direction.y) >= GHOST_AGRO_RANGE(scale)) ghost->status = GHOST_STATUS_IDLE;
+    else ghost->status = GHOST_STATUS_AGRO;
+    
+    if(ghost->status == GHOST_STATUS_AGRO){
+        if(direction.x < 0) ghost->status = GHOST_STATUS_RUNNING_LEFT;
+        else ghost->status = GHOST_STATUS_RUNNING_RIGHT;
+        direction = NormalizeVector2(direction);
+        ghost->velocity.x = direction.x * GHOST_STEP(scale) * DT;
+        ghost->velocity.y = direction.y * GHOST_STEP(scale) * DT;
 
-    ghost->position = Vector2Add(ghost->position, ghost->velocity);
+        ghost->position = Vector2Add(ghost->position, ghost->velocity);
+    }
 }
 
 void move_ghosts(GhostCollection* ghosts, Vector2 playerPos, float scale)

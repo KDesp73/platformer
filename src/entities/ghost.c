@@ -19,6 +19,7 @@ void draw_ghost(Ghost ghost)
     } else {
         if(IsTextureReady(*ghost.sprite)){
             switch (ghost.status) {
+                case GHOST_STATUS_AGRO:
                 case GHOST_STATUS_RUNNING_LEFT:
                     // DrawTextureRec(*ghost.sprite, (Rectangle) {0,0, -ghost.size.x, ghost.size.y}, ghost.position, WHITE);
                     DrawTexturePro(*ghost.sprite, (Rectangle) {0,0, -50.0f, 50.0f} , (Rectangle) {ghost.position.x, ghost.position.y, ghost.size.x, ghost.size.y}, (Vector2) {0}, 0, WHITE);

@@ -257,6 +257,8 @@ void builder(Cstr creator, float scale){
             reset_door(&builder);
             builder.platforms = (BuilderPlatform*) malloc(sizeof(BuilderPlatform) * MAX_PLATFORMS);
             builder.platforms_count = 0;
+            builder.ghosts = allocate_ghost_collection(MAX_GHOSTS);
+            builder.ghosts.count = 0;
         }
 
         if(IsKeyPressed(KEY_SAVE)){
@@ -281,15 +283,15 @@ void builder(Cstr creator, float scale){
                     DrawText(platform_str, 20, 20 + 40*i, 30, PLATFORM_COLOR);
                 }    
 
-                int starting = 20 + 40 * (builder.platforms_count+1); // +1 for one line of space
-                for (size_t i = 0; i < builder.ghosts.count; ++i){
-                    Cstr ghost_str = ghost_to_string(*builder.ghosts.items[i]);
-                    DrawText(ghost_str, 20, starting + 40*i, 30, GHOST_COLOR);
-                }
 
                 DrawText(player_to_string(builder.player), 600, 20, 30, PLAYER_COLOR);
                 DrawText(door_to_string(builder.door), 600, 60, 30, DOOR_COLOR);
             
+                for (size_t i = 0; i < builder.ghosts.count; ++i){
+                    Cstr ghost_str = ghost_to_string(*builder.ghosts.items[i]);
+                    DrawText(ghost_str, 900, 20 + 40*i, 30, GHOST_COLOR);
+                }
+
                 EndDrawing(); 
             }
         }
@@ -298,11 +300,9 @@ void builder(Cstr creator, float scale){
             Cstr level_str = export_level(builder, scale, creator);
             Game game = {
                 .level = 0,
-                .is_over = false,
-                .is_level_complete = false,
                 .textures = load_textures(
                         "assets/images/jess-30x50.png",
-                        "assets/images/door-50x80.png",
+                        "assets/images/door-50x75.png",
                         "assets/images/wood-25x25.png",
                         "assets/images/ghost-50x50.png",
                         NULL // Teriminate the list
