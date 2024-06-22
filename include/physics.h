@@ -5,6 +5,7 @@
 #define GRAVITY(scale) (800.0f * scale)
 #define JUMP_FORCE(scale) (400.0f * scale)
 #define PLAYER_STEP(scale) (400.0f * scale)
+#define GHOST_STEP(scale) (200.0f * scale)
 #define FRICTION(scale) (0.8f * (scale >= 1.0f ? 1.0f/scale : scale))
 
 int check_platform_collision(Player* player, Platform* platform);

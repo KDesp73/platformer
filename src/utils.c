@@ -81,3 +81,9 @@ void clean_and_exit(Levels* levels, Game* game){
     EndMode2D();
     CloseWindow();
 }
+
+Vector2 NormalizeVector2(Vector2 v) {
+    float length = sqrtf(v.x * v.x + v.y * v.y);
+    if (length == 0) return (Vector2){0, 0}; // Avoid division by zero
+    return (Vector2){v.x / length, v.y / length};
+}

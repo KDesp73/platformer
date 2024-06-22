@@ -16,6 +16,7 @@ typedef struct {
     int is_over;
     int is_level_complete;
     Player player;
+    GhostCollection ghosts;
     Textures textures;
 } Game;
 

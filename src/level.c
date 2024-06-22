@@ -371,6 +371,7 @@ void run_level(Level level, Game* game){
     // Logic
     update_player(&game->player, SCREEN_WIDTH, SCREEN_HEIGHT, level.scale);
     check_and_resolve_platform_collisions(&game->player, level.platforms);
+    move_ghosts(&level.ghosts, game->player.position, level.scale);
 
     if(game->player.position.y + game->player.size.y == SCREEN_HEIGHT){
         // TODO: fall to previous level

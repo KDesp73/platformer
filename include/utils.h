@@ -13,6 +13,7 @@ void copy_color(Color* dest, const Color src);
 void copy_texture2D(Texture2D* dest, const Texture2D src);
 void copy_player(Player* dest, const Player src);
 void print_vector2(Vector2 vec, Cstr tag);
+Vector2 NormalizeVector2(Vector2 v);
 
 #define COPY_PLAYER(dest, src) \
     do { \

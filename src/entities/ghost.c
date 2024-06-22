@@ -121,3 +121,4 @@ void free_ghosts(GhostCollection ghosts)
     }
     free(ghosts.items);
 }
+

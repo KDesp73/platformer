@@ -2,6 +2,7 @@
 #include "config.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "utils.h"
 #include <assert.h>
 #define CLIB_IMPLEMENTATION
 #include "clib.h"
@@ -121,3 +122,20 @@ void update_player(Player* player, float windowWidth, float windowHeight, float 
     }
 }
 
+
+void move_ghost(Ghost* ghost, Vector2 playerPos, float scale)
+{
+    Vector2 direction = {playerPos.x - ghost->position.x, playerPos.y - ghost->position.y};
+    direction = NormalizeVector2(direction);
+    ghost->velocity.x = direction.x * GHOST_STEP(scale) * DT;
+    ghost->velocity.y = direction.y * GHOST_STEP(scale) * DT;
+
+    ghost->position = Vector2Add(ghost->position, ghost->velocity);
+}
+
+void move_ghosts(GhostCollection* ghosts, Vector2 playerPos, float scale)
+{
+    for(size_t i = 0; i < ghosts->count; ++i){
+        move_ghost(ghosts->items[i], playerPos, scale);
+    }
+}
