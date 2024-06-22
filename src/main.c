@@ -88,8 +88,10 @@ void run_game(){
 
             if(game.status == GAME_STATUS_GAME_OVER){
                 DrawCenteredText("Game Over", SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+                INFO("Congratulations!");
             } else {
                 DrawCenteredText("YOU DIED", SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+                INFO("Too bad...");
             }
             DrawCenteredText("Press Enter to exit", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
 
