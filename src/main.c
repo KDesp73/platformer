@@ -48,6 +48,7 @@ void run_game(){
     }
 
     COPY_PLAYER(game.player, levels.items[0]->player);
+    game.ghosts = levels.items[0]->ghosts;
     print_vector2(game.player.position, "game.player");
     while(!WindowShouldClose()){
         BeginDrawing();
@@ -69,6 +70,7 @@ void run_game(){
                             game.level++;
                             game.status = -1;
                             COPY_PLAYER(game.player, levels.items[game.level]->player);
+                            game.ghosts = levels.items[game.level]->ghosts;
                         }
                     }
                 } else {
@@ -80,6 +82,7 @@ void run_game(){
                         game.level--;
                         game.status = -1;
                         COPY_PLAYER(game.player, levels.items[game.level]->player);
+                        game.ghosts = levels.items[game.level]->ghosts;
                     }
                 }
             }

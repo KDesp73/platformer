@@ -371,8 +371,8 @@ void run_level(Level level, Game* game){
     // Logic
     update_player(&game->player, SCREEN_WIDTH, SCREEN_HEIGHT, level.scale);
     check_and_resolve_platform_collisions(&game->player, level.platforms);
-    move_ghosts(&level.ghosts, game->player.position, level.scale);
-    if(check_ghost_collisions(&game->player, level.ghosts)){
+    move_ghosts(&game->ghosts, game->player.position, level.scale);
+    if(check_ghost_collisions(&game->player, game->ghosts)){
         game->status = GAME_STATUS_PLAYER_DIED;
     }
 
