@@ -25,6 +25,12 @@
 #define DOOR_LEFT(door) (door.position.x)
 #define DOOR_RIGHT(door) (door.position.x + door.size.x)
 
+#define GHOST_TOP(ghost) (ghost.position.y)
+#define GHOST_BOTTOM(ghost) (ghost.position.y + ghost.size.y)
+#define GHOST_LEFT(ghost) (ghost.position.x)
+#define GHOST_RIGHT(ghost) (ghost.position.x + ghost.size.x)
+
+
 #define PLAYER_IS_INSIDE_PLATFORM(player, platform) \
     (PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) && PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform))
 
@@ -126,6 +132,8 @@ void update_player(Player* player, float windowWidth, float windowHeight, float 
 void move_ghost(Ghost* ghost, Vector2 playerPos, float scale)
 {
     Vector2 direction = {playerPos.x - ghost->position.x, playerPos.y - ghost->position.y};
+    if(direction.x < 0) ghost->status = GHOST_STATUS_RUNNING_LEFT;
+    else ghost->status = GHOST_STATUS_RUNNING_RIGHT;
     direction = NormalizeVector2(direction);
     ghost->velocity.x = direction.x * GHOST_STEP(scale) * DT;
     ghost->velocity.y = direction.y * GHOST_STEP(scale) * DT;
@@ -138,4 +146,23 @@ void move_ghosts(GhostCollection* ghosts, Vector2 playerPos, float scale)
     for(size_t i = 0; i < ghosts->count; ++i){
         move_ghost(ghosts->items[i], playerPos, scale);
     }
+}
+
+
+int check_ghost_collision(Player* player, Ghost ghost)
+{
+    return (PLAYER_LEFT(player) <= GHOST_RIGHT(ghost)) &&
+        (PLAYER_RIGHT(player) >= GHOST_LEFT(ghost)) && 
+        (PLAYER_TOP(player) <= GHOST_BOTTOM(ghost)) &&
+        (PLAYER_BOTTOM(player) >= GHOST_TOP(ghost));
+}
+
+int check_ghost_collisions(Player* player, GhostCollection ghosts)
+{
+    for(size_t i = 0; i < ghosts.count; ++i){
+        if(check_ghost_collision(player, *ghosts.items[i])){
+            return 1;
+        }
+    }
+    return 0;
 }

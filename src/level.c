@@ -372,21 +372,24 @@ void run_level(Level level, Game* game){
     update_player(&game->player, SCREEN_WIDTH, SCREEN_HEIGHT, level.scale);
     check_and_resolve_platform_collisions(&game->player, level.platforms);
     move_ghosts(&level.ghosts, game->player.position, level.scale);
+    if(check_ghost_collisions(&game->player, level.ghosts)){
+        game->status = GAME_STATUS_PLAYER_DIED;
+    }
 
     if(game->player.position.y + game->player.size.y == SCREEN_HEIGHT){
-        // TODO: fall to previous level
+        game->status = GAME_STATUS_PREV_LEVEL;
     }
 
     if(check_door_collision(&game->player, level.door)){
         DrawText("^", level.door.position.x + level.door.size.x / 2 - MeasureText("^", 70) / 2.0f, level.door.position.y - 70/2.0f - 10, 70, WHITE);
         if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
-            game->is_level_complete = true;
+            game->status = GAME_STATUS_NEXT_LEVEL;
         }
     }
 
     // CHEAT
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) game->player.position = GetMousePosition();
-    if(IsKeyPressed(KEY_N)) game->is_level_complete = true;
+    if(IsKeyPressed(KEY_N)) game->status = GAME_STATUS_NEXT_LEVEL;
     
 
     // Draw

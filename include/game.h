@@ -10,11 +10,17 @@
 #define ROWS(scale) ((int) (SCREEN_WIDTH / CELL_SIZE(scale)))
 #define COLS(scale) ((int) (SCREEN_HEIGHT / CELL_SIZE(scale)))
 
+typedef enum {
+    GAME_STATUS_ACTIVE = -1,
+    GAME_STATUS_GAME_OVER,
+    GAME_STATUS_NEXT_LEVEL,
+    GAME_STATUS_PREV_LEVEL,
+    GAME_STATUS_PLAYER_DIED
+} GameStatus;
 
 typedef struct {
     size_t level;
-    int is_over;
-    int is_level_complete;
+    GameStatus status;
     Player player;
     GhostCollection ghosts;
     Textures textures;

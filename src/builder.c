@@ -214,7 +214,8 @@ char* export_level(Builder builder, float scale, Cstr creator){
         if(i < builder.ghosts.count - 1)
             strcat(buffer, "\n");
     }
-    strcat(buffer, "\n");
+    if(builder.ghosts.count > 0)
+        strcat(buffer, "\n");
     for(size_t i = 0; i < builder.platforms_count; ++i){
         strcat(buffer, platform_to_string(builder.platforms[i]));
         if(i < builder.platforms_count - 1)
@@ -259,10 +260,14 @@ void builder(Cstr creator, float scale){
         }
 
         if(IsKeyPressed(KEY_SAVE)){
-            Cstr file = CONCAT("assets/levels/level-", creator, "-", get_current_timestamp(), ".txt");
-            SaveFileText(file, export_level(builder, scale, creator));
-            INFO("File '%s' saved successfully", file);
-            exit(0);
+            if(is_player_reset(builder)) ERRO("Did not add the player");
+            else if(is_door_reset(builder)) ERRO("Did not add the door");
+            else {
+                Cstr file = CONCAT("assets/levels/level-", creator, "-", get_current_timestamp(), ".txt");
+                SaveFileText(file, export_level(builder, scale, creator));
+                INFO("File '%s' saved successfully", file);
+                exit(0);
+            }
         }
 
         if(IsKeyPressed(KEY_DEBUG)){

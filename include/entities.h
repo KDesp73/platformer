@@ -99,8 +99,6 @@ GhostCollection make_ghost_collection(Ghost* first, ...);
 GhostCollection allocate_ghost_collection(size_t capacity);
 void add_ghost(Ghost* ghost, GhostCollection* collection);
 void free_ghosts(GhostCollection ghosts);
-void move_ghost(Ghost* ghost, Vector2 playerPos, float scale);
-void move_ghosts(GhostCollection* ghosts, Vector2 playerPos, float scale);
 
 void draw_door(Door door);
 Vector2 place_door_on_platform(Platform platform);

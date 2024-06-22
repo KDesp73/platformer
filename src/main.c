@@ -17,8 +17,7 @@
 void run_game(){
     Game game = {
         .level = 0,
-        .is_over = false,
-        .is_level_complete = false,
+        .status = -1,
         .textures = load_textures(
             "assets/images/jess-30x50.png",
             "assets/images/door-50x75.png",
@@ -53,30 +52,45 @@ void run_game(){
     while(!WindowShouldClose()){
         BeginDrawing();
 
-        if(!game.is_over){
-            if(!game.is_level_complete){
+        if(game.status != GAME_STATUS_GAME_OVER && game.status != GAME_STATUS_PLAYER_DIED){
+            if(game.status != GAME_STATUS_NEXT_LEVEL && game.status != GAME_STATUS_PREV_LEVEL){
                 run_level(*levels.items[game.level], &game);
             } else {
-                if(game.level == levels.count-1){
-                    game.is_over = true;
-                } else{
-                    ClearBackground(GetColor(0x181818FF));
-                    Cstr level_complete = TextFormat("LEVEL %zu COMPLETE", game.level+1);
+                ClearBackground(GetColor(0x181818FF));
+                if(game.status == GAME_STATUS_NEXT_LEVEL){
+                    if(game.level == levels.count-1){
+                        game.status = GAME_STATUS_GAME_OVER;
+                    } else{
+                        Cstr level_complete = TextFormat("LEVEL %zu COMPLETE", game.level+1);
+                        DrawCenteredText(level_complete, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+                        DrawCenteredText("Press Enter to continue", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
+
+                        if(IsKeyPressed(KEY_ENTER)){
+                            game.level++;
+                            game.status = -1;
+                            COPY_PLAYER(game.player, levels.items[game.level]->player);
+                        }
+                    }
+                } else {
+                    Cstr level_complete = TextFormat("You fell");
                     DrawCenteredText(level_complete, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
                     DrawCenteredText("Press Enter to continue", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
 
                     if(IsKeyPressed(KEY_ENTER)){
-                        game.level++;
-                        game.is_level_complete = 0;
+                        game.level--;
+                        game.status = -1;
                         COPY_PLAYER(game.player, levels.items[game.level]->player);
-                        print_vector2(game.player.position, "game.player");
                     }
                 }
             }
         } else {
             ClearBackground(GetColor(0x181818FF));
 
-            DrawCenteredText("Game Over", SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+            if(game.status == GAME_STATUS_GAME_OVER){
+                DrawCenteredText("Game Over", SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+            } else {
+                DrawCenteredText("YOU DIED", SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+            }
             DrawCenteredText("Press Enter to exit", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
 
             if(IsKeyPressed(KEY_ENTER)){
