@@ -74,7 +74,9 @@ void resolve_platform_collision(Player* player, Platform* platform) {
 }
 
 void check_and_resolve_platform_collisions(Player* player, PlatformCollection platforms) {
-     if(PLAYER_BOTTOM(player) < GetScreenHeight())
+    if(PLAYER_TOP(player) == 0)
+        player->velocity.y = 0;
+    if(PLAYER_BOTTOM(player) < GetScreenHeight())
         player->is_grounded = false;  // Reset grounding status
     for (size_t i = 0; i < platforms.count; ++i) {
         Platform* platform = platforms.items[i];
@@ -98,10 +100,10 @@ void update_player(Player* player, float windowWidth, float windowHeight, float 
 
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
         player->velocity.x = -PLAYER_STEP(scale);
-        player->status = RUNNING_LEFT;
+        player->status = PLAYER_STATUS_RUNNING_LEFT;
     } else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
         player->velocity.x = PLAYER_STEP(scale);
-        player->status = RUNNING_RIGHT;
+        player->status = PLAYER_STATUS_RUNNING_RIGHT;
     } else {
         // Apply friction when no input is given
         player->velocity.x *= FRICTION(scale);

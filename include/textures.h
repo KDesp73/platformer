@@ -10,7 +10,9 @@ typedef enum {
     PLAYER,
     DOOR,
     PLATFORM,
+    GHOST,
     BACKGROUND,
+
     TEXTURES_COUNT
 } TextureId;
 

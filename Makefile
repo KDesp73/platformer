@@ -1,4 +1,4 @@
-CC = gcc
+CC = cc
 CFLAGS = -Wall -Iinclude -Ilib/raylib/raylib-5.0_linux_amd64/include -DDEBUG -ggdb
 LFLAGS = -L./lib/raylib/raylib-5.0_linux_amd64/lib -lm -lpthread -ldl -l:libraylib.a
 
@@ -7,7 +7,7 @@ INCLUDE_DIR = include
 BUILD_DIR = build
 
 # List all the source files
-SRC_FILES = $(filter-out $(SRC_DIR)/main.c, $(wildcard $(SRC_DIR)/*.c))
+SRC_FILES = $(filter-out $(SRC_DIR)/main.c, $(shell find $(SRC_DIR) -name '*.c'))
 
 # Generate the corresponding object file names
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
@@ -26,6 +26,7 @@ all: $(BUILD_DIR) $(TARGET)
 # Rule to create the build directory
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)/entities/
 
 # Rule to build the executable
 $(TARGET): $(OBJ_FILES) $(BUILD_DIR)/main.o	

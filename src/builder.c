@@ -20,6 +20,7 @@ typedef enum {
     KEY_DOOR = KEY_D,
     KEY_PLAYER = KEY_P,
     KEY_PLATFORM = KEY_F,
+    KEY_GHOST = KEY_G,
     KEY_RESET = KEY_R,
     KEY_QUIT = KEY_Q,
     KEY_DEBUG = KEY_APOSTROPHE,
@@ -30,7 +31,8 @@ typedef enum {
     SELECTION_PLAYER,
     SELECTION_PLATFORM_START,
     SELECTION_PLATFORM_END,
-    SELECTION_DOOR
+    SELECTION_DOOR,
+    SELECTION_GHOST
 } Selection;
 
 Cstr selection_to_string(Selection selection){
@@ -43,12 +45,15 @@ Cstr selection_to_string(Selection selection){
         return "Platform End";
     case SELECTION_DOOR:
         return "Door";
+    case SELECTION_GHOST:
+        return "Ghost";
     default:
         return "None";
     }
 }
 
 #define MAX_PLATFORMS 200
+#define MAX_GHOSTS 20
 
 typedef struct {
     Vector2 start;
@@ -59,6 +64,7 @@ typedef struct {
     Vector2 player;
     Vector2 door;
     BuilderPlatform* platforms;
+    GhostCollection ghosts;
     size_t platforms_count;
 } Builder;
 
@@ -101,6 +107,10 @@ void place_platform(Vector2 start, Vector2 end, Textures textures, float scale){
     }
 }
 
+void place_ghost(Ghost ghost, float scale){
+    ghost.position = Vector2Scale(ghost.position, CELL_SIZE(scale));
+    draw_ghost(ghost);
+}
 
 void reset_player(Builder* builder){
     builder->player.x = -1;
@@ -152,6 +162,13 @@ void place_builder_platforms(Builder builder, Textures textures, float scale){
         place_platform(p.start, p.end, textures, scale);
     }
 }
+void place_builder_ghosts(Builder builder, Textures textures, float scale)
+{
+    for(size_t i = 0; i < builder.ghosts.count; ++i){
+        builder.ghosts.items[i]->sprite = &textures.items[GHOST];
+        place_ghost(*builder.ghosts.items[i], scale);
+    }
+}
 
 Cstr player_to_string(Vector2 position){
     return TextFormat("player %.2f %.2f", position.x, position.y);
@@ -172,6 +189,11 @@ Cstr platform_to_string(BuilderPlatform platform){
     return TextFormat("platform %.2f %.2f %.2f", left.x, left.y, fabsf(platform.end.x - platform.start.x) + 1);
 }
 
+Cstr ghost_to_string(Ghost ghost)
+{
+    return TextFormat("ghost %.2f %.2f", ghost.position.x, ghost.position.y);
+}
+
 char* export_level(Builder builder, float scale, Cstr creator){
     add_platform_to_builder((BuilderPlatform) {.start = {-1, -1}, .end = {-1, -1 }}, &builder);
 
@@ -187,6 +209,12 @@ char* export_level(Builder builder, float scale, Cstr creator){
     strcat(buffer, CONCAT(player_text, "\n"));
     strcat(buffer, CONCAT(door_text, "\n"));
 
+    for(size_t i = 0; i < builder.ghosts.count; ++i){
+        strcat(buffer, ghost_to_string(*builder.ghosts.items[i]));
+        if(i < builder.ghosts.count - 1)
+            strcat(buffer, "\n");
+    }
+    strcat(buffer, "\n");
     for(size_t i = 0; i < builder.platforms_count; ++i){
         strcat(buffer, platform_to_string(builder.platforms[i]));
         if(i < builder.platforms_count - 1)
@@ -199,8 +227,9 @@ char* export_level(Builder builder, float scale, Cstr creator){
 void builder(Cstr creator, float scale){
     Textures textures = load_textures(
         "assets/images/jess-30x50.png",
-        "assets/images/door-50x80.png",
+        "assets/images/door-50x75.png",
         "assets/images/wood-25x25.png",
+        "assets/images/ghost-50x50.png",
         NULL // Teriminate the list
     );
 
@@ -208,6 +237,7 @@ void builder(Cstr creator, float scale){
     reset_door(&builder);
     reset_player(&builder);
     builder.platforms = (BuilderPlatform*) malloc(sizeof(BuilderPlatform) * MAX_PLATFORMS);
+    builder.ghosts = allocate_ghost_collection(MAX_GHOSTS);
 
     BuilderPlatform current_platform = {
         .start = (Vector2) {-1, -1},
@@ -219,6 +249,7 @@ void builder(Cstr creator, float scale){
         if(selected != SELECTION_PLATFORM_END && IsKeyPressed(KEY_PLAYER)) selected = SELECTION_PLAYER;
         if(IsKeyPressed(KEY_PLATFORM)) selected = SELECTION_PLATFORM_START;
         if(selected != SELECTION_PLATFORM_END && IsKeyPressed(KEY_DOOR)) selected = SELECTION_DOOR;
+        if(IsKeyPressed(KEY_GHOST)) selected = SELECTION_GHOST;
 
         if(IsKeyPressed(KEY_RESET)){
             reset_player(&builder);
@@ -228,7 +259,9 @@ void builder(Cstr creator, float scale){
         }
 
         if(IsKeyPressed(KEY_SAVE)){
-            SaveFileText(CONCAT("assets/levels/level-", creator, "-", get_current_timestamp(), ".txt"), export_level(builder, scale, creator));
+            Cstr file = CONCAT("assets/levels/level-", creator, "-", get_current_timestamp(), ".txt");
+            SaveFileText(file, export_level(builder, scale, creator));
+            INFO("File '%s' saved successfully", file);
             exit(0);
         }
 
@@ -240,11 +273,17 @@ void builder(Cstr creator, float scale){
                 for (size_t i = 0; i < builder.platforms_count; ++i) {
                     BuilderPlatform platform = builder.platforms[i];
                     Cstr platform_str = platform_to_string(platform);
-                    DrawText(platform_str, 20, 20 + 40*i, 30, WHITE);
+                    DrawText(platform_str, 20, 20 + 40*i, 30, PLATFORM_COLOR);
                 }    
 
-                DrawText(player_to_string(builder.player), 600, 20, 30, RED);
-                DrawText(door_to_string(builder.door), 600, 60, 30, GREEN);
+                int starting = 20 + 40 * (builder.platforms_count+1); // +1 for one line of space
+                for (size_t i = 0; i < builder.ghosts.count; ++i){
+                    Cstr ghost_str = ghost_to_string(*builder.ghosts.items[i]);
+                    DrawText(ghost_str, 20, starting + 40*i, 30, GHOST_COLOR);
+                }
+
+                DrawText(player_to_string(builder.player), 600, 20, 30, PLAYER_COLOR);
+                DrawText(door_to_string(builder.door), 600, 60, 30, DOOR_COLOR);
             
                 EndDrawing(); 
             }
@@ -260,11 +299,12 @@ void builder(Cstr creator, float scale){
                         "assets/images/jess-30x50.png",
                         "assets/images/door-50x80.png",
                         "assets/images/wood-25x25.png",
+                        "assets/images/ghost-50x50.png",
                         NULL // Teriminate the list
                         ),
             };
             game.player = (Player) {
-                .status = IDLE,
+                .status = PLAYER_STATUS_IDLE,
                     .sprite = &game.textures.items[PLAYER],
                     .is_grounded = false,
                     .velocity = {0},
@@ -306,6 +346,9 @@ void builder(Cstr creator, float scale){
                     reset_current_platform(&current_platform);
                     selected = SELECTION_PLATFORM_START;
                     break;
+                case SELECTION_GHOST:
+                    add_ghost(make_ghost((Vector2) { MOUSE_POSITION(scale).x, MOUSE_POSITION(scale).y }, scale), &builder.ghosts);
+                    break;
                 default:
                     break;
             }
@@ -325,6 +368,7 @@ void builder(Cstr creator, float scale){
         }
     
         place_builder_platforms(builder, textures, scale);
+        place_builder_ghosts(builder, textures, scale);
 
         if(!is_player_reset(builder)){
             place_player(builder.player, textures, scale);

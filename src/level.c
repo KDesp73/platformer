@@ -20,6 +20,7 @@ void draw_level(Level level, Player player, Textures textures){
     draw_door(level.door);
     draw_player(player);
     draw_platforms(level.platforms, textures.items[PLATFORM]);
+    draw_ghosts(level.ghosts);
 }
 
 void add_level(Levels* levels, Level* level){
@@ -33,7 +34,7 @@ void add_level(Levels* levels, Level* level){
     levels->items[levels->count++] = level;
 }
 
-Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2 door_position, Textures textures, float scale){
+Level* make_level(Vector2 player_position, PlatformCollection platforms, GhostCollection ghosts, Vector2 door_position, Textures textures, float scale){
     Level* level = (Level*) malloc(sizeof(Level)); 
 
     if(level == NULL) {
@@ -46,7 +47,7 @@ Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2
         .size = PLAYER_SIZE(scale),
         .color = PLAYER_COLOR,
         .sprite = &textures.items[PLAYER],
-        .status = IDLE
+        .status = PLAYER_STATUS_IDLE
     };
 
     level->door = (Door) {
@@ -57,6 +58,7 @@ Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2
     };
 
     level->platforms = platforms;
+    level->ghosts = ghosts;
     level->textures = textures;
 
     return level;
@@ -186,9 +188,8 @@ Level* load_level(Cstr text, Textures textures) {
         PANIC("Failed to allocate memory for level\n");
     }
 
-
-    int platforms_count = 0;
-    // First pass: Count platforms
+    // First pass: Count ghosts
+    level->ghosts.count = 0;
     for (size_t i = 0; i < lines_count; ++i) {
         if(
             lines[i] == NULL || 
@@ -200,7 +201,7 @@ Level* load_level(Cstr text, Textures textures) {
         char** parts;
         int words = split(lines[i], ' ', &parts);
         if (parts == NULL) continue;
-        if (strcmp(parts[0], "platform") == 0) platforms_count++;
+        if (strcmp(parts[0], "ghost") == 0) level->ghosts.count++;
 
         for (int j = 0; j < words; j++) {
             free((char*)parts[j]);
@@ -208,7 +209,34 @@ Level* load_level(Cstr text, Textures textures) {
         free(parts);
     }
 
-    level->platforms = allocate_platform_collection(platforms_count + 1); // +1 for base platform
+    DEBU("ghost.count: %zu", level->ghosts.count);
+    if(level->ghosts.count > 0)
+        level->ghosts = allocate_ghost_collection(level->ghosts.count); 
+    level->ghosts.count = 0;
+    
+    // First pass: Count platforms
+    level->platforms.count = 0;
+    for (size_t i = 0; i < lines_count; ++i) {
+        if(
+            lines[i] == NULL || 
+            lines[i][0] == EOF || 
+            lines[i][0] == '\0' || 
+            lines[i][0] == '\n'
+        ) continue;
+
+        char** parts;
+        int words = split(lines[i], ' ', &parts);
+        if (parts == NULL) continue;
+        if (strcmp(parts[0], "platform") == 0) level->platforms.count++;
+
+        for (int j = 0; j < words; j++) {
+            free((char*)parts[j]);
+        }
+        free(parts);
+    }
+
+    DEBU("platform.count: %zu", level->platforms.count);
+    level->platforms = allocate_platform_collection(level->platforms.count + 1); // +1 for base platform
     level->platforms.count = 0;
 
     // Second pass: Process each line
@@ -227,19 +255,25 @@ Level* load_level(Cstr text, Textures textures) {
         }
 
         if (strcmp(parts[0], "creator") == 0) {
-            if (words != 2) PANIC("Invalid number of values in line %zu\n", i + 1);
+            if (words != 2) PANIC("Invalid number of values in line %zu", i + 1);
             level->creator = strdup(parts[1]);
         } else if (strcmp(parts[0], "scale") == 0) {
-            if (words != 2) PANIC("Invalid number of values in line %zu\n", i + 1);
+            if (words != 2) PANIC("Invalid number of values in line %zu", i + 1);
             level->scale = atof(parts[1]);
         } else if (strcmp(parts[0], "player") == 0) {
-            if (words != 3) PANIC("Invalid number of values in line %zu\n", i + 1);
+            if (words != 3) PANIC("Invalid number of values in line %zu", i + 1);
             level->player.position = (Vector2){ atof(parts[1]), atof(parts[2]) };
         } else if (strcmp(parts[0], "door") == 0) {
-            if (words != 3) PANIC("Invalid number of values in line %zu\n", i + 1);
+            if (words != 3) PANIC("Invalid number of values in line %zu", i + 1);
             level->door.position = (Vector2){ atof(parts[1]), atof(parts[2]) };
+        } else if (strcmp(parts[0], "ghost") == 0) {
+            if(words != 3) PANIC("Invalig number of values in line %zu", i + 1);
+            Vector2 pos  = { atof(parts[1]), atof(parts[2]) };
+            pos = Vector2Scale(pos, CELL_SIZE(level->scale));
+            if(level->ghosts.items != NULL)
+                add_ghost(make_ghost(pos, level->scale), &level->ghosts);
         } else if (strcmp(parts[0], "platform") == 0) {
-            if (words != 4) PANIC("Invalid number of values in line %zu\n", i + 1);
+            if (words != 4) PANIC("Invalid number of values in line %zu", i + 1);
             Vector2 start = { atof(parts[1]), atof(parts[2]) };
             start = Vector2Scale(start, CELL_SIZE(level->scale));
             add_platform(make_platform((Vector2) {start.x, start.y + CELL_SIZE(level->scale) / 2}, atof(parts[3]) * CELL_SIZE(level->scale), PLATFORM_HEIGHT(level->scale), WHITE), &level->platforms);
@@ -265,7 +299,7 @@ Level* load_level(Cstr text, Textures textures) {
     level->player.color = PLAYER_COLOR;
     if(textures.items != NULL)
         level->player.sprite = &textures.items[PLAYER];
-    level->player.status = IDLE;
+    level->player.status = PLAYER_STATUS_IDLE;
 
     level->door.position = Vector2Scale(level->door.position, CELL_SIZE(level->scale));
     level->door.size = Vector2Scale(BASE_DOOR_SIZE, (level->scale));
@@ -275,6 +309,10 @@ Level* load_level(Cstr text, Textures textures) {
 
     if(textures.items != NULL)
         level->textures = textures;
+
+    for(size_t i = 0; i < level->ghosts.count; ++i){
+        level->ghosts.items[i]->sprite = &textures.items[GHOST];
+    }
 
     INFO("level scale: %.1f", level->scale);
 

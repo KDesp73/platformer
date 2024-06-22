@@ -23,11 +23,12 @@ void run_game(){
             "assets/images/jess-30x50.png",
             "assets/images/door-50x75.png",
             "assets/images/wood-25x25.png",
+            "assets/images/ghost-50x50.png",
             NULL // Teriminate the list
         ),
     };
     game.player = (Player) {
-        .status = IDLE,
+        .status = PLAYER_STATUS_IDLE,
         .sprite = &game.textures.items[PLAYER],
         .is_grounded = false,
         .velocity = {0},

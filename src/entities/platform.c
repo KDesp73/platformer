@@ -12,63 +12,6 @@
 #include "clib.h"
 #include "raylib.h"
 
-void draw_door(Door door){
-    if(door.sprite->width <= 0 || door.sprite->height <= 0){
-        DrawRectangleV(door.position, (Vector2) {door.size.x, door.size.y}, door.color);
-    } else {
-        if(IsTextureReady(*door.sprite)){
-            Rectangle src = {0,0,50.0f, 75.0f};
-            Rectangle dest = {door.position.x, door.position.y, door.size.x, door.size.y};
-            DrawTexturePro(*door.sprite, src , dest, (Vector2) {0}, 0, WHITE);
-        }  
-    }
-}
-
-void draw_player(Player player) {
-    if(player.sprite->width <= 0 || player.sprite->height <= 0){
-        DrawRectangleV(player.position, (Vector2) {player.size.x, player.size.y}, player.color);
-    } else {
-        if(IsTextureReady(*player.sprite)){
-            switch (player.status) {
-                case RUNNING_LEFT:
-                    // DrawTextureRec(*player.sprite, (Rectangle) {0,0, -player.size.x, player.size.y}, player.position, WHITE);
-                    DrawTexturePro(*player.sprite, (Rectangle) {0,0, -25.0f, 50.0f} , (Rectangle) {player.position.x, player.position.y, player.size.x, player.size.y}, (Vector2) {0}, 0, WHITE);
-                    break;
-                case IDLE:
-                case RUNNING_RIGHT:
-                    // DrawTextureRec(*player.sprite, (Rectangle) {0,0, player.size.x, player.size.y}, player.position, WHITE);
-                    DrawTexturePro(*player.sprite, (Rectangle) {0,0, 25.0f, 50.0f} , (Rectangle) {player.position.x, player.position.y, player.size.x, player.size.y}, (Vector2) {0}, 0, WHITE);
-                    break;
-                default:
-                    ERRO("Unknown status");
-                    break;
-            }
-        } 
-    }
-}
-
-// void draw_platform(Platform platform, Texture2D sprite){
-//     if (sprite.width <= 0 || sprite.height <= 0 || sprite.width > SCREEN_WIDTH || sprite.height > SCREEN_HEIGHT){
-//         Vector2 new_start = {platform.start.x, platform.start.y + platform.thickness / 2};
-//         DrawLineEx(new_start, (Vector2) {platform.start.x + platform.length, platform.start.y + platform.thickness / 2}, platform.thickness, platform.color);
-//     } else {
-//         if(IsTextureReady(sprite)){
-//             float scale = ceilf(platform.thickness / BASE);
-//             float cell_size = CELL_SIZE(scale);
-//             Rectangle src = {0,0, 25, 25};
-//             for(float i = 0; i < platform.length - cell_size; i += cell_size){
-//                 Rectangle dest = {
-//                     platform.start.x + i, 
-//                     platform.start.y - cell_size / 2, 
-//                     platform.thickness, 
-//                     platform.thickness
-//                 };
-//                 DrawTexturePro(sprite, src, dest, (Vector2) {0}, 0, WHITE);
-//             }
-//         }
-//     }
-// }
-
 void draw_platform(Platform platform, Texture2D sprite) {
     if (sprite.width <= 0 || sprite.height <= 0 || sprite.width > SCREEN_WIDTH || sprite.height > SCREEN_HEIGHT) {
         DrawLineEx(platform.start, (Vector2){platform.start.x + platform.length, platform.start.y}, platform.thickness, platform.color);

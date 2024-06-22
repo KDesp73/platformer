@@ -8,6 +8,7 @@ typedef struct {
     Cstr creator;
     Player player;
     PlatformCollection platforms;
+    GhostCollection ghosts;
     Door door;
     Textures textures;
     float scale; // based on 25.0f
@@ -20,7 +21,7 @@ typedef struct {
 } Levels;
 
 void draw_level(Level level, Player player, Textures textures);
-Level* make_level(Vector2 player_position, PlatformCollection platforms, Vector2 door_position, Textures textures, float scale);
+Level* make_level(Vector2 player_position, PlatformCollection platforms, GhostCollection ghosts, Vector2 door_position, Textures textures, float scale);
 Levels make_levels(Level* first, ...);
 Levels allocate_levels(size_t capacity);
 void add_level(Levels* levels, Level* level);
