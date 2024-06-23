@@ -114,6 +114,7 @@ void add_ghost(Ghost* ghost, GhostCollection* collection)
 
 void free_ghosts(GhostCollection ghosts)
 {
+    if(ghosts.items == NULL || ghosts.count == 0) return;
     for (size_t i = 0; i < ghosts.count; ++i) {
         if (ghosts.items[i] != NULL) {
             free(ghosts.items[i]);

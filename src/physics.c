@@ -137,7 +137,8 @@ void update_player(Player* player, float windowWidth, float windowHeight, float 
 void move_ghost(Ghost* ghost, Vector2 playerPos, float scale)
 {
     Vector2 direction = {playerPos.x - ghost->position.x, playerPos.y - ghost->position.y};
-    if(fabsf(direction.x) >= GHOST_AGRO_RANGE(scale) && fabsf(direction.y) >= GHOST_AGRO_RANGE(scale)) ghost->status = GHOST_STATUS_IDLE;
+    if(
+        fabsf(direction.x) >= GHOST_AGRO_RANGE(scale) || fabsf(direction.y) >= GHOST_AGRO_RANGE(scale)) ghost->status = GHOST_STATUS_IDLE;
     else ghost->status = GHOST_STATUS_AGRO;
     
     if(ghost->status == GHOST_STATUS_AGRO){

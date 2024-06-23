@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "entities.h"
 #include "level.h"
 #include <time.h>
 
@@ -78,12 +79,34 @@ void copy_player(Player* dest, const Player src)
     copy_texture2D(dest->sprite, *src.sprite);
 }
 
+void copy_level(Level* dest, const Level src)
+{
+    dest->creator = src.creator;
+    dest->player = src.player;
+    dest->door = src.door;
+
+    if(src.ghosts.items != NULL){
+        dest->ghosts.items = src.ghosts.items;
+        dest->ghosts.count = src.ghosts.count;
+        dest->ghosts.capacity = src.ghosts.capacity;
+    }
+
+    if(src.platforms.items != NULL){
+        dest->platforms.items = src.platforms.items;
+        dest->platforms.count = src.platforms.count;
+        dest->platforms.capacity = src.platforms.capacity;
+    }
+
+    dest->textures = src.textures;
+}
 
 void clean_and_exit(Levels* levels, Game* game)
 {
     for(size_t i = 0; i < levels->count; ++i){
         free_platforms(levels->items[i]->platforms);
+        free_ghosts(levels->items[i]->ghosts);
     }
+
     unload_textures(game->textures);
 
     EndMode2D();

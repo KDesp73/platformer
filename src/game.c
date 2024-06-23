@@ -30,7 +30,7 @@ void run_game()
         PANIC("Couldn't load levels");
     }
 
-    game.current_level = *levels.items[0];
+    game.current_level = *levels.items[game.level];
     while(!WindowShouldClose()){
         BeginDrawing();
 

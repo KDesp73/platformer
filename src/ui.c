@@ -80,11 +80,11 @@ int IsHover(Rectangle rec)
     return CheckCollisionPointRec(GetMousePosition(), rec);
 }
 
-Rectangle Button(Vector2 pos, int width, int height, Color color, Cstr text)
+Rectangle Button(float x, float y, int width, int height, Color color, Cstr text)
 {
-    Rectangle rec ={pos.x - width/2.0f, pos.y - height / 2.0f, width, height};
+    Rectangle rec ={x - width/2.0f, y - height / 2.0f, width, height};
     DrawRectangleRounded(rec, 20, 10, color);
-    DrawCenteredText(text, (Vector2) {pos.x - width / 2.0f, pos.y - height/2.0f}, width, height, 20, WHITE);
+    DrawCenteredText(text, (Vector2) {x - width / 2.0f, y - height/2.0f}, width, height, 20, WHITE);
 
     return rec;
 }
@@ -96,20 +96,17 @@ void HomePage()
         ClearBackground(GetColor(0x181818FF));
         DrawCenteredText(GAME_NAME, (Vector2) {0}, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
 
-        Rectangle button = Button((Vector2){SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT/ 2.0f + 400}, 300, 100, RED, "PLAY");
+        Rectangle button = Button(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT/ 2.0f + 400, 300, 100, RED, "PLAY");
 
-        if(IsHover(button)){
-            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                EndDrawing(); 
-                SetMouseCursor(MOUSE_CURSOR_ARROW);
-                return;
-            }
-        } else {
-            SetMouseCursor(MOUSE_CURSOR_ARROW);
+        if(
+            (IsHover(button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || 
+            IsKeyPressed(KEY_ENTER)
+        ){
+            EndDrawing(); 
+            return;
         }
         EndDrawing();
-    }
+    }         
 }
 
 

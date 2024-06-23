@@ -24,7 +24,7 @@ void PressUpTooltip(Game* game);
 
 
 int IsHover(Rectangle rec);
-Rectangle Button(Vector2 pos, int width, int height, Color color, Cstr text);
+Rectangle Button(float x, float y, int width, int height, Color color, Cstr text);
 void HomePage();
 
 #endif // UI_H

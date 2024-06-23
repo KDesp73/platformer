@@ -5,12 +5,12 @@
 #include "textures.h"
 typedef struct {
     Cstr creator;
+    float scale;
     Player player;
-    PlatformCollection platforms;
-    GhostCollection ghosts;
     Door door;
+    GhostCollection ghosts;
+    PlatformCollection platforms;
     Textures textures;
-    float scale; // based on 25.0f
 } Level;
 
 typedef struct {

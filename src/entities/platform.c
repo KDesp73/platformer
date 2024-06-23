@@ -44,9 +44,10 @@ void draw_platforms(PlatformCollection collection)
 
 void free_platforms(PlatformCollection platforms) 
 {
+    if(platforms.items == NULL || platforms.count == 0) return;
     for (size_t i = 0; i < platforms.count; ++i) {
         if (platforms.items[i] != NULL) {
-            free(platforms.items[i]);
+            clib_safe_free((void**) &platforms.items[i]);
             platforms.items[i] = NULL; // Optional: to avoid dangling pointers
         }
     }

@@ -5,7 +5,7 @@
 #include "textures.h"
 #include <stdio.h>
 #define CLIB_IMPLEMENTATION
-#include "clib.h"
+#include "extern/clib.h"
 #include "level.h"
 
 #define PASS(fmt, ...) \

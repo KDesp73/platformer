@@ -7,7 +7,7 @@
 #define JUMP_FORCE(scale) (400.0f * scale)
 #define PLAYER_STEP(scale) (400.0f * scale)
 #define GHOST_STEP(scale) (150.0f * scale)
-#define GHOST_AGRO_RANGE(scale) (CELL_SIZE(scale) * 10)
+#define GHOST_AGRO_RANGE(scale) (CELL_SIZE(scale) * 20)
 #define FRICTION(scale) (0.8f * (scale >= 1.0f ? 1.0f/scale : scale))
 
 int check_platform_collision(Player* player, Platform* platform);

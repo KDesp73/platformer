@@ -387,7 +387,8 @@ void run_level(Game* game)
     }
 
     if(game->current_level.player.position.y + game->current_level.player.size.y == SCREEN_HEIGHT){
-        game->status = GAME_STATUS_PREV_LEVEL;
+        if(game->level > 0)
+            game->status = GAME_STATUS_PREV_LEVEL;
     }
 
     if(check_door_collision(&game->current_level.player, game->current_level.door)){
