@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <math.h>
 #define CLIB_IMPLEMENTATION
-#include "clib.h"
+#include "extern/clib.h"
 #include "entities.h"
 
 #define PADDING 5 // Should scale
@@ -35,14 +35,16 @@
 #define PLAYER_IS_INSIDE_PLATFORM(player, platform) \
     (PLAYER_RIGHT(player) >= PLATFORM_LEFT(platform) && PLAYER_LEFT(player) <= PLATFORM_RIGHT(platform))
 
-int check_door_collision(Player* player, Door door) {
+int check_door_collision(Player* player, Door door) 
+{
     return (PLAYER_LEFT(player) <= DOOR_RIGHT(door)) &&
         (PLAYER_RIGHT(player) >= DOOR_LEFT(door)) && 
         (PLAYER_TOP(player) <= DOOR_BOTTOM(door)) &&
         (PLAYER_BOTTOM(player) >= DOOR_TOP(door));
 }
 
-int check_platform_collision(Player* player, Platform* platform) {
+int check_platform_collision(Player* player, Platform* platform) 
+{
     assert(platform != NULL);
     assert(player != NULL);
 
@@ -52,7 +54,8 @@ int check_platform_collision(Player* player, Platform* platform) {
              PLAYER_BOTTOM(player) >= PLATFORM_TOP(platform));
 }
 
-void resolve_platform_collision(Player* player, Platform* platform) {
+void resolve_platform_collision(Player* player, Platform* platform) 
+{
     float overlapTop = PLAYER_BOTTOM(player) - PLATFORM_TOP(platform);
     float overlapBottom = PLATFORM_BOTTOM(platform) - PLAYER_TOP(player);
     float overlapLeft = PLAYER_RIGHT(player) - PLATFORM_LEFT(platform);
@@ -81,7 +84,8 @@ void resolve_platform_collision(Player* player, Platform* platform) {
     }
 }
 
-void check_and_resolve_platform_collisions(Player* player, PlatformCollection platforms) {
+void check_and_resolve_platform_collisions(Player* player, PlatformCollection platforms) 
+{
     if(PLAYER_TOP(player) == 0)
         player->velocity.y = 0;
     if(PLAYER_BOTTOM(player) < GetScreenHeight())
@@ -94,7 +98,8 @@ void check_and_resolve_platform_collisions(Player* player, PlatformCollection pl
     }
 }
 
-void update_player(Player* player, float windowWidth, float windowHeight, float scale) {
+void update_player(Player* player, float windowWidth, float windowHeight, float scale) 
+{
     if (player->is_grounded && IsKeyPressed(KEY_SPACE)) {
         player->velocity.y = -JUMP_FORCE(scale);
         player->is_grounded = false;
@@ -128,7 +133,6 @@ void update_player(Player* player, float windowWidth, float windowHeight, float 
         player->is_grounded = true;
     }
 }
-
 
 void move_ghost(Ghost* ghost, Vector2 playerPos, float scale)
 {

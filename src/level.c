@@ -1,5 +1,5 @@
 #include "level.h"
-#include "clib.h"
+#include "extern/clib.h"
 #include "config.h"
 #include "entities.h"
 #include "game.h"
@@ -8,22 +8,23 @@
 #include "raymath.h"
 #include "textures.h"
 #include "ui.h"
-#include "utils.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
 
-void draw_level(Level level, Player player, Textures textures){
+void draw_level(Level level, Player player)
+{
     assert(level.platforms.items != NULL);
     draw_door(level.door);
     draw_player(player);
-    draw_platforms(level.platforms, textures.items[PLATFORM]);
+    draw_platforms(level.platforms);
     draw_ghosts(level.ghosts);
 }
 
-void add_level(Levels* levels, Level* level){
+void add_level(Levels* levels, Level* level)
+{
     assert(levels->items != NULL);
     assert(level!= NULL);
 
@@ -34,7 +35,8 @@ void add_level(Levels* levels, Level* level){
     levels->items[levels->count++] = level;
 }
 
-Level* make_level(Vector2 player_position, PlatformCollection platforms, GhostCollection ghosts, Vector2 door_position, Textures textures, float scale){
+Level* make_level(Vector2 player_position, PlatformCollection platforms, GhostCollection ghosts, Vector2 door_position, Textures textures, float scale)
+{
     Level* level = (Level*) malloc(sizeof(Level)); 
 
     if(level == NULL) {
@@ -64,14 +66,16 @@ Level* make_level(Vector2 player_position, PlatformCollection platforms, GhostCo
     return level;
 }
 
-Levels allocate_levels(size_t capacity){
+Levels allocate_levels(size_t capacity)
+{
     Levels result = { .capacity = capacity };
     result.items = (Level**) malloc(sizeof(Level) * capacity);
     
     return result;
 }
 
-Levels make_levels(Level* first, ...) {
+Levels make_levels(Level* first, ...) 
+{
     Levels result = {0};
     if (first == NULL) {
         ERRO("No platforms added");
@@ -105,8 +109,8 @@ Levels make_levels(Level* first, ...) {
     return result;
 }
 
-// const char** split(const char* str, char delimiter, int* count);
-int split (const char *str, char c, char ***arr){
+int split (const char *str, char c, char ***arr)
+{
     int count = 1;
     int token_len = 1;
     int i = 0;
@@ -166,7 +170,8 @@ int split (const char *str, char c, char ***arr){
     return count;
 }
 
-Level* load_level_from_file(Cstr path, Textures textures){
+Level* load_level_from_file(Cstr path, Textures textures)
+{
     Cstr contents = clib_read_file(path);
     if (contents == NULL) {
         PANIC("Failed to read file: %s\n", path);
@@ -175,7 +180,8 @@ Level* load_level_from_file(Cstr path, Textures textures){
     return load_level(contents, textures);
 }
 
-Level* load_level(Cstr text, Textures textures) {
+Level* load_level(Cstr text, Textures textures) 
+{
     char** lines;
     int lines_count = split(text, '\n', &lines) - 1;
     if (lines == NULL) {
@@ -295,27 +301,32 @@ Level* load_level(Cstr text, Textures textures) {
     level->player.position = Vector2Scale(level->player.position, CELL_SIZE(level->scale));
     level->player.size = Vector2Scale(BASE_PLAYER_SIZE, (level->scale));
     level->player.color = PLAYER_COLOR;
-    if(textures.items != NULL)
-        level->player.sprite = &textures.items[PLAYER];
     level->player.status = PLAYER_STATUS_IDLE;
 
     level->door.position = Vector2Scale(level->door.position, CELL_SIZE(level->scale));
     level->door.size = Vector2Scale(BASE_DOOR_SIZE, (level->scale));
     level->door.color = DOOR_COLOR;
-    if(textures.items != NULL)
-        level->door.sprite = &textures.items[DOOR];
 
-    if(textures.items != NULL)
+    if(textures.items != NULL){
+        level->player.sprite = &textures.items[PLAYER];
+        level->door.sprite = &textures.items[DOOR];
         level->textures = textures;
 
-    for(size_t i = 0; i < level->ghosts.count; ++i){
-        level->ghosts.items[i]->sprite = &textures.items[GHOST];
+        for(size_t i = 0; i < level->ghosts.count; ++i){
+            level->ghosts.items[i]->sprite = &textures.items[GHOST];
+        }
+
+        for(size_t i = 0; i < level->platforms.count; ++i){
+            level->platforms.items[i]->sprite = &textures.items[PLATFORM];
+        }
     }
+
 
     return level;
 }
 
-Cstr* get_files(Cstr dir, int* count){
+Cstr* get_files(Cstr dir, int* count)
+{
     struct dirent *de;
 
     *count = 0;
@@ -344,7 +355,8 @@ Cstr* get_files(Cstr dir, int* count){
     return items;
 }
 
-Levels load_levels_from_dir(Cstr path, Textures textures){
+Levels load_levels_from_dir(Cstr path, Textures textures)
+{
     int count;
     
     Cstr* files = get_files(path, &count);
@@ -363,33 +375,34 @@ Levels load_levels_from_dir(Cstr path, Textures textures){
     return levels;
 }
 
-void run_level(Level level, Game* game){
+void run_level(Game* game)
+{
     // Logic
-    update_player(&game->player, SCREEN_WIDTH, SCREEN_HEIGHT, level.scale);
-    check_and_resolve_platform_collisions(&game->player, level.platforms);
-    move_ghosts(&game->ghosts, game->player.position, level.scale);
-    if(check_ghost_collisions(&game->player, game->ghosts)){
+    update_player(&game->current_level.player, SCREEN_WIDTH, SCREEN_HEIGHT, game->current_level.scale);
+    check_and_resolve_platform_collisions(&game->current_level.player, game->current_level.platforms);
+    move_ghosts(&game->current_level.ghosts, game->current_level.player.position, game->current_level.scale);
+    if(check_ghost_collisions(&game->current_level.player, game->current_level.ghosts)){
         game->status = GAME_STATUS_PLAYER_DIED;
     }
 
-    if(game->player.position.y + game->player.size.y == SCREEN_HEIGHT){
+    if(game->current_level.player.position.y + game->current_level.player.size.y == SCREEN_HEIGHT){
         game->status = GAME_STATUS_PREV_LEVEL;
     }
 
-    if(check_door_collision(&game->player, level.door)){
-        DrawText("^", level.door.position.x + level.door.size.x / 2 - MeasureText("^", 70) / 2.0f, level.door.position.y - 70/2.0f - 10, 70, WHITE);
+    if(check_door_collision(&game->current_level.player, game->current_level.door)){
+        PressUpTooltip(game);
         if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
             game->status = GAME_STATUS_NEXT_LEVEL;
         }
     }
 
     // CHEAT
-    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) game->player.position = GetMousePosition();
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) game->current_level.player.position = GetMousePosition();
     if(IsKeyPressed(KEY_N)) game->status = GAME_STATUS_NEXT_LEVEL;
     
 
     // Draw
     ClearBackground(GetColor(0x181818FF));
-    draw_level(level, game->player, level.textures);
+    draw_level(game->current_level, game->current_level.player);
     DrawText(TextFormat("Level %zu", game->level+1), 20, 20, 30, WHITE);
 }

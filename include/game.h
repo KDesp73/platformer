@@ -3,6 +3,7 @@
 
 #include "entities.h"
 #include <stdlib.h>
+#include "level.h"
 #include "textures.h"
 
 #define BASE ceilf(SCREEN_WIDTH / 48.0f)
@@ -21,11 +22,11 @@ typedef enum {
 typedef struct {
     size_t level;
     GameStatus status;
-    Player player;
-    GhostCollection ghosts;
+    Level current_level;
     Textures textures;
 } Game;
 
+void run_level(Game* game);
 void run_game();
 
 #endif // GAME_H

@@ -2,15 +2,18 @@
 #include "level.h"
 #include <time.h>
 
-long map(long x, long in_min, long in_max, long out_min, long out_max){
+long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-void print_vector2(Vector2 vec, Cstr tag){
+void print_vector2(Vector2 vec, Cstr tag)
+{
     printf("[%s] x: %.2f y: %.2f\n", tag, vec.x, vec.y);
 }
 
-char* get_current_timestamp() {
+char* get_current_timestamp()
+{
     // Get the current time
     time_t current_time = time(NULL);
     if (current_time == ((time_t)-1)) {
@@ -42,19 +45,22 @@ char* get_current_timestamp() {
     return time_string;
 }
 
-void copy_vector2(Vector2* dest, const Vector2 src){
+void copy_vector2(Vector2* dest, const Vector2 src)
+{
     dest->x = src.x;
     dest->y = src.y;
 }
 
-void copy_color(Color* dest, const Color src){
+void copy_color(Color* dest, const Color src)
+{
     dest->a = src.a;
     dest->r = src.r;
     dest->g = src.g;
     dest->b = src.b;
 }
 
-void copy_texture2D(Texture2D* dest, const Texture2D src){
+void copy_texture2D(Texture2D* dest, const Texture2D src)
+{
     dest->height = src.height;
     dest->width = src.width;
     dest->format = src.format;
@@ -62,7 +68,8 @@ void copy_texture2D(Texture2D* dest, const Texture2D src){
     dest->id = src.id;
 }
 
-void copy_player(Player* dest, const Player src){
+void copy_player(Player* dest, const Player src)
+{
     copy_vector2(&dest->position, src.position);
     copy_vector2(&dest->size, src.size);
     copy_color(&dest->color, src.color);
@@ -72,7 +79,8 @@ void copy_player(Player* dest, const Player src){
 }
 
 
-void clean_and_exit(Levels* levels, Game* game){
+void clean_and_exit(Levels* levels, Game* game)
+{
     for(size_t i = 0; i < levels->count; ++i){
         free_platforms(levels->items[i]->platforms);
     }
@@ -82,7 +90,8 @@ void clean_and_exit(Levels* levels, Game* game){
     CloseWindow();
 }
 
-Vector2 NormalizeVector2(Vector2 v) {
+Vector2 NormalizeVector2(Vector2 v) 
+{
     float length = sqrtf(v.x * v.x + v.y * v.y);
     if (length == 0) return (Vector2){0, 0}; // Avoid division by zero
     return (Vector2){v.x / length, v.y / length};

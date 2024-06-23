@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 #define CLIB_IMPLEMENTATION
-#include "clib.h"
+#include "extern/clib.h"
 #include "raylib.h"
 
 void draw_ghost(Ghost ghost)

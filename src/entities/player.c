@@ -1,18 +1,13 @@
 #include "entities.h"
-#include "config.h"
-#include "raymath.h"
-#include "utils.h"
-#include "game.h"
 #include <assert.h>
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #define CLIB_IMPLEMENTATION
-#include "clib.h"
+#include "extern/clib.h"
 #include "raylib.h"
 
-void draw_player(Player player) {
+void draw_player(Player player) 
+{
     if(player.sprite->width <= 0 || player.sprite->height <= 0){
         DrawRectangleV(player.position, (Vector2) {player.size.x, player.size.y}, player.color);
     } else {

@@ -9,17 +9,18 @@
 #include <stdlib.h>
 
 #define CLIB_IMPLEMENTATION
-#include "clib.h"
+#include "extern/clib.h"
 #include "raylib.h"
 
-void draw_platform(Platform platform, Texture2D sprite) {
-    if (sprite.width <= 0 || sprite.height <= 0 || sprite.width > SCREEN_WIDTH || sprite.height > SCREEN_HEIGHT) {
+void draw_platform(Platform platform) 
+{
+    if (platform.sprite->width <= 0 || platform.sprite->height <= 0 || platform.sprite->width > SCREEN_WIDTH || platform.sprite->height > SCREEN_HEIGHT) {
         DrawLineEx(platform.start, (Vector2){platform.start.x + platform.length, platform.start.y}, platform.thickness, platform.color);
     } else {
-        if (IsTextureReady(sprite)) {
+        if (IsTextureReady(*platform.sprite)) {
             float scale = ceilf(platform.thickness / BASE);
             float cell_size = CELL_SIZE(scale);
-            Rectangle src = {0, 0, sprite.width, sprite.height};
+            Rectangle src = {0, 0, platform.sprite->width, platform.sprite->height};
             for (float i = 0; i < (cell_size * platform.length / cell_size) - 1; i += cell_size) {
                 Rectangle dest = {
                     platform.start.x + i, 
@@ -27,20 +28,22 @@ void draw_platform(Platform platform, Texture2D sprite) {
                     cell_size, 
                     platform.thickness
                 };
-                DrawTexturePro(sprite, src, dest, (Vector2){0, 0}, 0, WHITE);
+                DrawTexturePro(*platform.sprite, src, dest, (Vector2){0, 0}, 0, WHITE);
             }
         }
     }
 }
 
-void draw_platforms(PlatformCollection collection, Texture2D sprite) {
+void draw_platforms(PlatformCollection collection) 
+{
     for (size_t i = 0; i < collection.count; ++i) {
         if(collection.items[i] != NULL)
-            draw_platform(*collection.items[i], sprite);
+            draw_platform(*collection.items[i]);
     }
 }
 
-void free_platforms(PlatformCollection platforms) {
+void free_platforms(PlatformCollection platforms) 
+{
     for (size_t i = 0; i < platforms.count; ++i) {
         if (platforms.items[i] != NULL) {
             free(platforms.items[i]);
@@ -50,7 +53,8 @@ void free_platforms(PlatformCollection platforms) {
     free(platforms.items);
 }
 
-Platform* make_platform(Vector2 start, float length, float thickness, Color color){
+Platform* make_platform(Vector2 start, float length, float thickness, Color color)
+{
     Platform* platform = (Platform*) malloc(sizeof(Platform));
     
     if(!platform){
@@ -71,14 +75,16 @@ Platform* make_platform(Vector2 start, float length, float thickness, Color colo
     return platform;
 }
 
-PlatformCollection allocate_platform_collection(size_t capacity){
+PlatformCollection allocate_platform_collection(size_t capacity)
+{
     PlatformCollection result = {.capacity = capacity};
     result.items = (Platform**) malloc(sizeof(Platform) * capacity);
     
     return result;
 }
 
-PlatformCollection make_platform_collection(Platform* first, ...) {
+PlatformCollection make_platform_collection(Platform* first, ...) 
+{
     PlatformCollection result = {0};
     if (first == NULL) {
         ERRO("No platforms added");
@@ -112,7 +118,8 @@ PlatformCollection make_platform_collection(Platform* first, ...) {
     return result;
 }
 
-void add_platform(Platform* platform, PlatformCollection* collection){
+void add_platform(Platform* platform, PlatformCollection* collection)
+{
     assert(platform != NULL);
     assert(collection->items != NULL);
 
@@ -123,13 +130,18 @@ void add_platform(Platform* platform, PlatformCollection* collection){
     collection->items[collection->count++] = platform;
 }
 
-void print_player_position(Player player, int x, int y){
+void print_player_position(Player player, int x, int y)
+{
     DrawText(TextFormat("Player: (%.1f,  %.1f)", player.position.x, player.position.y), x, y, 20, WHITE);
 }
-void print_platform_position(Platform platform, int x, int y){
+
+void print_platform_position(Platform platform, int x, int y)
+{
     DrawText(TextFormat("Platform: start(%.1f,  %.1f) end(%.1f,  %.1f)", platform.start.x, platform.start.y, platform.start.x + platform.length, platform.start.y), x, y, 20, WHITE);
 }
-void print_platforms_positions(PlatformCollection platforms, int x, int y){
+
+void print_platforms_positions(PlatformCollection platforms, int x, int y)
+{
     for(size_t i = 0; i < platforms.count; ++i){
         print_platform_position(*platforms.items[i], x, y + (30*i));
     }

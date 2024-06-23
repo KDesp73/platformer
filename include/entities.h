@@ -92,8 +92,8 @@ typedef struct {
     Texture2D* sprite;
 } Key;
 
-void draw_platform(Platform platform, Texture2D sprite);
-void draw_platforms(PlatformCollection collection, Texture2D sprite);
+void draw_platform(Platform platform);
+void draw_platforms(PlatformCollection collection);
 Platform* make_platform(Vector2 start, float length, float thickness, Color color);
 PlatformCollection make_platform_collection(Platform* first, ...);
 PlatformCollection allocate_platform_collection(size_t capacity);

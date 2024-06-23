@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include "entities.h"
+#include "game.h"
 #include "level.h"
 #include "raylib.h"
 

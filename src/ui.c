@@ -4,13 +4,15 @@
 #include "game.h"
 #include "raylib.h"
 
-void DrawCenteredText(Cstr text, int x, int y, int fontSize, Color color){
+void DrawCenteredText(Cstr text, int x, int y, int fontSize, Color color)
+{
     int size = MeasureText(text, fontSize);
     DrawText(text, x / 2.0f - size / 2.0f, y/2.0f - fontSize / 2.0f, fontSize, color);
 }
 
 
-void draw_grid(float scale, int draw_coords, int draw_center){
+void draw_grid(float scale, int draw_coords, int draw_center)
+{
     Color color = GRAY;
 
     for(size_t y = 0; y < SCREEN_HEIGHT; ++y){
@@ -38,7 +40,8 @@ void draw_grid(float scale, int draw_coords, int draw_center){
     }
 }
 
-Vector2 mouse_cell_position(float scale) {
+Vector2 mouse_cell_position(float scale) 
+{
     float cellSize = CELL_SIZE(scale);
 
     // Map mouse coordinates to cell grid
@@ -54,11 +57,18 @@ Vector2 mouse_cell_position(float scale) {
     return result;
 }
 
-void show_mouse_coords_at_cursor(int font_size, Color color){
+void show_mouse_coords_at_cursor(int font_size, Color color)
+{
     show_coords_at_cursor(GetMousePosition(), font_size, color);
 }
 
-void show_coords_at_cursor(Vector2 coords, int font_size, Color color){
+void show_coords_at_cursor(Vector2 coords, int font_size, Color color)
+{
     Cstr text = TextFormat("%.2f %.2f", coords.x, coords.y);
     DrawText(text, GetMousePosition().x + 20, GetMousePosition().y, font_size, color);
+}
+
+void PressUpTooltip(Game* game)
+{
+    DrawText("^", game->current_level.door.position.x + game->current_level.door.size.x / 2 - MeasureText("^", 70) / 2.0f, game->current_level.door.position.y - 70/2.0f - 10, 70, WHITE);
 }

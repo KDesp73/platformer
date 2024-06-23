@@ -1,7 +1,7 @@
 #include "builder.h"
 #include <math.h>
 #include <string.h>
-#include "clib.h"
+#include "extern/clib.h"
 #include "config.h"
 #include "entities.h"
 #include "game.h"
@@ -35,7 +35,8 @@ typedef enum {
     SELECTION_GHOST
 } Selection;
 
-Cstr selection_to_string(Selection selection){
+Cstr selection_to_string(Selection selection)
+{
     switch (selection) {
     case SELECTION_PLAYER:
         return "Player";
@@ -69,11 +70,13 @@ typedef struct {
 } Builder;
 
 
-void place(Vector2 position, Vector2 size, Texture2D texture, float scale){
+void place(Vector2 position, Vector2 size, Texture2D texture, float scale)
+{
     DrawTextureRec(texture, (Rectangle) {0,0, size.x, size.y}, Vector2Scale(position, BASE * scale), WHITE);
 }
 
-void place_player(Vector2 position, Textures textures, float scale){
+void place_player(Vector2 position, Textures textures, float scale)
+{
     draw_player((Player){
         .position = Vector2Scale(position, CELL_SIZE(scale)),
         .size = PLAYER_SIZE(scale),
@@ -82,7 +85,8 @@ void place_player(Vector2 position, Textures textures, float scale){
     });
 }
 
-void place_door(Vector2 position, Textures textures, float scale){
+void place_door(Vector2 position, Textures textures, float scale)
+{
     draw_door((Door){
         .position = Vector2Scale(position, CELL_SIZE(scale)),
         .size = DOOR_SIZE(scale),
@@ -91,11 +95,13 @@ void place_door(Vector2 position, Textures textures, float scale){
     });
 }
 
-void place_platform_tile(Vector2 position, Textures textures, float scale){
+void place_platform_tile(Vector2 position, Textures textures, float scale)
+{
     place(position, (Vector2) {BASE * scale, BASE * scale}, textures.items[PLATFORM], scale);
 }
 
-void place_platform(Vector2 start, Vector2 end, Textures textures, float scale){
+void place_platform(Vector2 start, Vector2 end, Textures textures, float scale)
+{
     Vector2 left = (start.x >= end.x) ? end : start;
     for(size_t i = 0; i < fabsf(start.x - end.x) + 1; i++){
         Vector2 tile_position = {
@@ -107,12 +113,14 @@ void place_platform(Vector2 start, Vector2 end, Textures textures, float scale){
     }
 }
 
-void place_ghost(Ghost ghost, float scale){
+void place_ghost(Ghost ghost, float scale)
+{
     ghost.position = Vector2Scale(ghost.position, CELL_SIZE(scale));
     draw_ghost(ghost);
 }
 
-void reset_player(Builder* builder){
+void reset_player(Builder* builder)
+{
     builder->player.x = -1;
     builder->player.y = -1;
 }
@@ -122,20 +130,26 @@ void reset_door(Builder* builder){
     builder->door.y = -1;
 }
 
-void reset_current_platform(BuilderPlatform* platform){
+void reset_current_platform(BuilderPlatform* platform)
+{
     platform->start = (Vector2) {0, 0};
     platform->end = (Vector2) {0, 0};
 }
-int is_player_reset(Builder builder){
+
+int is_player_reset(Builder builder)
+{
     return builder.player.x == -1 ||
         builder.player.y == -1;
 }
-int is_door_reset(Builder builder){
+
+int is_door_reset(Builder builder)
+{
     return builder.door.x == -1 ||
         builder.door.y == -1;
 }
 
-int is_platform_reset(BuilderPlatform platform){
+int is_platform_reset(BuilderPlatform platform)
+{
     return platform.start.x == 0 ||
         platform.start.y == 0 ||
         platform.end.x == 0 ||
@@ -143,11 +157,13 @@ int is_platform_reset(BuilderPlatform platform){
 }
 
 
-Vector2 expand_mouse_position(Vector2 position, float scale){
+Vector2 expand_mouse_position(Vector2 position, float scale)
+{
     return (Vector2) {position.x * BASE * scale, position.y * BASE * scale};
 }
 
-void add_platform_to_builder(BuilderPlatform platform, Builder* builder){
+void add_platform_to_builder(BuilderPlatform platform, Builder* builder)
+{
     if(builder->platforms_count >= MAX_PLATFORMS){
         ERRO("Max platform count reached");
         return;
@@ -156,12 +172,14 @@ void add_platform_to_builder(BuilderPlatform platform, Builder* builder){
     builder->platforms[builder->platforms_count++] = platform;
 }
 
-void place_builder_platforms(Builder builder, Textures textures, float scale){
+void place_builder_platforms(Builder builder, Textures textures, float scale)
+{
     for(size_t i = 0; i < builder.platforms_count; ++i){
         BuilderPlatform p = builder.platforms[i];
         place_platform(p.start, p.end, textures, scale);
     }
 }
+
 void place_builder_ghosts(Builder builder, Textures textures, float scale)
 {
     for(size_t i = 0; i < builder.ghosts.count; ++i){
@@ -170,19 +188,23 @@ void place_builder_ghosts(Builder builder, Textures textures, float scale)
     }
 }
 
-Cstr player_to_string(Vector2 position){
+Cstr player_to_string(Vector2 position)
+{
     return TextFormat("player %.2f %.2f", position.x, position.y);
 }
 
-Cstr scale_to_string(float scale){
+Cstr scale_to_string(float scale)
+{
     return TextFormat("scale %.1f", scale);
 }
 
-Cstr door_to_string(Vector2 position){
+Cstr door_to_string(Vector2 position)
+{
     return TextFormat("door %.2f %.2f", position.x, position.y);
 }
 
-Cstr platform_to_string(BuilderPlatform platform){
+Cstr platform_to_string(BuilderPlatform platform)
+{
     Vector2 left;
     if(platform.start.x <= platform.end.x) copy_vector2(&left, platform.start);
     else if(platform.start.x > platform.end.x) copy_vector2(&left, platform.end);
@@ -194,7 +216,8 @@ Cstr ghost_to_string(Ghost ghost)
     return TextFormat("ghost %.2f %.2f", ghost.position.x, ghost.position.y);
 }
 
-char* export_level(Builder builder, float scale, Cstr creator){
+char* export_level(Builder builder, float scale, Cstr creator)
+{
     add_platform_to_builder((BuilderPlatform) {.start = {-1, -1}, .end = {-1, -1 }}, &builder);
 
     Cstr player_text = player_to_string(builder.player);
@@ -225,12 +248,14 @@ char* export_level(Builder builder, float scale, Cstr creator){
     return buffer;
 }
 
-void builder(Cstr creator, float scale){
+void builder(Cstr creator, float scale)
+{
     Textures textures = load_textures(
         "assets/images/jess-30x50.png",
         "assets/images/door-50x75.png",
         "assets/images/wood-25x25.png",
         "assets/images/ghost-50x50.png",
+        "assets/images/key-25x25.png",
         NULL // Teriminate the list
     );
 
@@ -308,7 +333,8 @@ void builder(Cstr creator, float scale){
                         NULL // Teriminate the list
                         ),
             };
-            game.player = (Player) {
+            game.current_level = (Level){0};
+            game.current_level.player = (Player) {
                 .status = PLAYER_STATUS_IDLE,
                     .sprite = &game.textures.items[PLAYER],
                     .is_grounded = false,
@@ -317,13 +343,14 @@ void builder(Cstr creator, float scale){
                     .size = PLAYER_SIZE(1.0f),
                     .color = PLAYER_COLOR
             };
+            game.current_level.ghosts = builder.ghosts;
             printf("%s\n", level_str);
             Level* level = load_level(level_str, game.textures);
-            copy_vector2(&game.player.position, level->player.position);
-            copy_vector2(&game.player.size, level->player.size);
+            copy_vector2(&game.current_level.player.position, level->player.position);
+            copy_vector2(&game.current_level.player.size, level->player.size);
             while(!IsKeyPressed(KEY_QUIT) && !WindowShouldClose()){
                 BeginDrawing();
-                run_level(*level, &game);
+                run_level(&game);
                 EndDrawing();
             }
             free(level);

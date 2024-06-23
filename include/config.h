@@ -4,9 +4,9 @@
 #define GAME_NAME "Platformer"
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 0
-#define VERSION_PATCH 7
+#define VERSION_PATCH 8
 #define VERSION_TAG "demo"
-#define VERSION "0.0.7-demo"
+#define VERSION "0.0.8-demo"
 
 #define FPS 60
 #define DT GetFrameTime()

@@ -1,18 +1,13 @@
 #include "entities.h"
-#include "config.h"
-#include "raymath.h"
-#include "utils.h"
-#include "game.h"
 #include <assert.h>
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #define CLIB_IMPLEMENTATION
-#include "clib.h"
+#include "extern/clib.h"
 #include "raylib.h"
 
-void draw_door(Door door){
+void draw_door(Door door)
+{
     if(door.sprite->width <= 0 || door.sprite->height <= 0){
         DrawRectangleV(door.position, (Vector2) {door.size.x, door.size.y}, door.color);
     } else {

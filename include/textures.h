@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #define CLIB_IMPLEMENTATION 
-#include "clib.h"
+#include "extern/clib.h"
 #include "raylib.h"
 
 typedef enum {

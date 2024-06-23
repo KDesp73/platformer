@@ -1,13 +1,12 @@
 #include "textures.h"
-#include "clib.h"
-#include "config.h"
-#include "game.h"
+#include "extern/clib.h"
 #include "raylib.h"
 #include <stdarg.h>
 #include <stdio.h>
 
 
-Textures load_textures(Cstr first, ...) {
+Textures load_textures(Cstr first, ...) 
+{
     Textures result = {0};
 
     result.items = (Texture2D*) malloc(sizeof(Texture2D) * TEXTURES_COUNT);
@@ -34,7 +33,8 @@ Textures load_textures(Cstr first, ...) {
     return result;
 }
 
-void unload_textures(Textures textures) {
+void unload_textures(Textures textures) 
+{
     for (size_t i = 0; i < textures.count; ++i) {
         UnloadTexture(textures.items[i]);
     }
