@@ -209,7 +209,6 @@ Level* load_level(Cstr text, Textures textures) {
         free(parts);
     }
 
-    DEBU("ghost.count: %zu", level->ghosts.count);
     if(level->ghosts.count > 0)
         level->ghosts = allocate_ghost_collection(level->ghosts.count); 
     level->ghosts.count = 0;
@@ -235,7 +234,6 @@ Level* load_level(Cstr text, Textures textures) {
         free(parts);
     }
 
-    DEBU("platform.count: %zu", level->platforms.count);
     level->platforms = allocate_platform_collection(level->platforms.count + 1); // +1 for base platform
     level->platforms.count = 0;
 
@@ -313,8 +311,6 @@ Level* load_level(Cstr text, Textures textures) {
     for(size_t i = 0; i < level->ghosts.count; ++i){
         level->ghosts.items[i]->sprite = &textures.items[GHOST];
     }
-
-    INFO("level scale: %.1f", level->scale);
 
     return level;
 }

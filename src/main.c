@@ -98,7 +98,7 @@ void run_game(){
 
             if(IsKeyPressed(KEY_ENTER)){
                 clean_and_exit(&levels, &game);
-                (game.status = GAME_STATUS_PLAYER_DIED) ? INFO("Too bad...") : INFO("Congratulations!");
+                (game.status == GAME_STATUS_PLAYER_DIED) ? INFO("Too bad...") : INFO("Congratulations!");
                 exit(0);
             }
         }

@@ -11,6 +11,7 @@ typedef enum {
     DOOR,
     PLATFORM,
     GHOST,
+    KEY,
     BACKGROUND,
 
     TEXTURES_COUNT

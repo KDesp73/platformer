@@ -69,6 +69,7 @@ typedef struct {
     size_t capacity;
 } PlatformCollection;
 
+// Serialized: ghost position_x position_y
 typedef struct {
     Vector2 position;
     Vector2 velocity;
@@ -83,6 +84,13 @@ typedef struct {
     size_t count;
     size_t capacity;
 } GhostCollection;
+
+typedef struct {
+    Vector2 position;
+    Vector2 size;
+    Color color;
+    Texture2D* sprite;
+} Key;
 
 void draw_platform(Platform platform, Texture2D sprite);
 void draw_platforms(PlatformCollection collection, Texture2D sprite);
