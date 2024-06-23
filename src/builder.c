@@ -325,6 +325,7 @@ void builder(Cstr creator, float scale)
             Cstr level_str = export_level(builder, scale, creator);
             Game game = {
                 .level = 0,
+                .status = GAME_STATUS_ACTIVE,
                 .textures = load_textures(
                         "assets/images/jess-30x50.png",
                         "assets/images/door-50x75.png",
@@ -333,24 +334,24 @@ void builder(Cstr creator, float scale)
                         NULL // Teriminate the list
                         ),
             };
-            game.current_level = (Level){0};
-            game.current_level.player = (Player) {
-                .status = PLAYER_STATUS_IDLE,
-                    .sprite = &game.textures.items[PLAYER],
-                    .is_grounded = false,
-                    .velocity = {0},
-                    .position = {0},
-                    .size = PLAYER_SIZE(1.0f),
-                    .color = PLAYER_COLOR
-            };
-            game.current_level.ghosts = builder.ghosts;
-            printf("%s\n", level_str);
             Level* level = load_level(level_str, game.textures);
-            copy_vector2(&game.current_level.player.position, level->player.position);
-            copy_vector2(&game.current_level.player.size, level->player.size);
+            game.current_level = *level;
             while(!IsKeyPressed(KEY_QUIT) && !WindowShouldClose()){
                 BeginDrawing();
                 run_level(&game);
+
+                Cstr game_status = NULL;
+                if(game.status == GAME_STATUS_PLAYER_DIED){
+                    game_status = "Player died";
+                } else if (game.status == GAME_STATUS_PREV_LEVEL) {
+                    game_status = "Fell";
+                } else if(game.status == GAME_STATUS_NEXT_LEVEL) {
+                    game_status = "Level complete";
+                }
+
+                game_status = TextFormat("Status: %s", game_status);
+                DrawText(game_status, SCREEN_WIDTH -30- MeasureText(game_status, 30), 20, 30, WHITE);
+
                 EndDrawing();
             }
             free(level);

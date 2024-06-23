@@ -4,10 +4,10 @@
 #include "game.h"
 #include "raylib.h"
 
-void DrawCenteredText(Cstr text, int x, int y, int fontSize, Color color)
+void DrawCenteredText(Cstr text, Vector2 offset, int width, int y, int fontSize, Color color)
 {
     int size = MeasureText(text, fontSize);
-    DrawText(text, x / 2.0f - size / 2.0f, y/2.0f - fontSize / 2.0f, fontSize, color);
+    DrawText(text, offset.x + (width - size) / 2.0f, offset.y + (y - fontSize) / 2.0f, fontSize, color);
 }
 
 
@@ -72,3 +72,44 @@ void PressUpTooltip(Game* game)
 {
     DrawText("^", game->current_level.door.position.x + game->current_level.door.size.x / 2 - MeasureText("^", 70) / 2.0f, game->current_level.door.position.y - 70/2.0f - 10, 70, WHITE);
 }
+
+
+
+int IsHover(Rectangle rec)
+{
+    return CheckCollisionPointRec(GetMousePosition(), rec);
+}
+
+Rectangle Button(Vector2 pos, int width, int height, Color color, Cstr text)
+{
+    Rectangle rec ={pos.x - width/2.0f, pos.y - height / 2.0f, width, height};
+    DrawRectangleRounded(rec, 20, 10, color);
+    DrawCenteredText(text, (Vector2) {pos.x - width / 2.0f, pos.y - height/2.0f}, width, height, 20, WHITE);
+
+    return rec;
+}
+
+void HomePage()
+{
+    while(!WindowShouldClose()){
+        BeginDrawing();
+        ClearBackground(GetColor(0x181818FF));
+        DrawCenteredText(GAME_NAME, (Vector2) {0}, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+
+        Rectangle button = Button((Vector2){SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT/ 2.0f + 400}, 300, 100, RED, "PLAY");
+
+        if(IsHover(button)){
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                EndDrawing(); 
+                SetMouseCursor(MOUSE_CURSOR_ARROW);
+                return;
+            }
+        } else {
+            SetMouseCursor(MOUSE_CURSOR_ARROW);
+        }
+        EndDrawing();
+    }
+}
+
+

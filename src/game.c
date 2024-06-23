@@ -44,8 +44,8 @@ void run_game()
                         game.status = GAME_STATUS_GAME_OVER;
                     } else{
                         Cstr level_complete = TextFormat("LEVEL %zu COMPLETE", game.level+1);
-                        DrawCenteredText(level_complete, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
-                        DrawCenteredText("Press Enter to continue", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
+                        DrawCenteredText(level_complete, (Vector2){0}, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+                        DrawCenteredText("Press Enter to continue", (Vector2){0}, SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
 
                         if(IsKeyPressed(KEY_ENTER)){
                             game.level++;
@@ -55,8 +55,8 @@ void run_game()
                     }
                 } else {
                     Cstr level_complete = TextFormat("You fell");
-                    DrawCenteredText(level_complete, SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
-                    DrawCenteredText("Press Enter to continue", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
+                    DrawCenteredText(level_complete, (Vector2){0},SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+                    DrawCenteredText("Press Enter to continue", (Vector2){0},SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
 
                     if(IsKeyPressed(KEY_ENTER)){
                         game.level--;
@@ -69,11 +69,11 @@ void run_game()
             ClearBackground(GetColor(0x181818FF));
 
             if(game.status == GAME_STATUS_GAME_OVER){
-                DrawCenteredText("Game Over", SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+                DrawCenteredText("Game Over", (Vector2){0},SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
             } else {
-                DrawCenteredText("YOU DIED", SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
+                DrawCenteredText("YOU DIED", (Vector2){0},SCREEN_WIDTH, SCREEN_HEIGHT - 200, 100, WHITE);
             }
-            DrawCenteredText("Press Enter to exit", SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
+            DrawCenteredText("Press Enter to exit", (Vector2){0},SCREEN_WIDTH, SCREEN_HEIGHT + 200, 70, WHITE);
 
             if(IsKeyPressed(KEY_ENTER)){
                 clean_and_exit(&levels, &game);

@@ -302,6 +302,7 @@ Level* load_level(Cstr text, Textures textures)
     level->player.size = Vector2Scale(BASE_PLAYER_SIZE, (level->scale));
     level->player.color = PLAYER_COLOR;
     level->player.status = PLAYER_STATUS_IDLE;
+    level->player.is_grounded = false;
 
     level->door.position = Vector2Scale(level->door.position, CELL_SIZE(level->scale));
     level->door.size = Vector2Scale(BASE_DOOR_SIZE, (level->scale));

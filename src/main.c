@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "config.h"
 #include "builder.h"
+#include "ui.h"
 #include "utils.h"
 
 #define CLIB_IMPLEMENTATION
@@ -64,6 +65,7 @@ int main(int argc, char** argv)
             exit(1);
         }
     } else {
+        HomePage();
         run_game();
     }
 

@@ -1,5 +1,5 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #define GAME_NAME "Platformer"
 #define VERSION_MAJOR 0
@@ -20,4 +20,4 @@ typedef struct {
     int is_fullscreen;
 } Settings;
 
-#endif // SETTINGS_H
+#endif // CONFIG_H
