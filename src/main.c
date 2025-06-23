@@ -26,8 +26,9 @@ int main(int argc, char** argv)
 
 
     struct option* opts = clib_get_options(args);
+    char* fmt = clib_generate_cli_format_string(args);
     int opt;
-    while((opt = getopt_long(argc, argv, clib_generate_cli_format_string(args), opts, NULL)) != -1){
+    while((opt = getopt_long(argc, argv, fmt, opts, NULL)) != -1){
         switch (opt) {
             case 'h':
                 clib_cli_help(args, CONCAT(argv[0], " [-b -c <Creator>] [-v | -h]"), "Made by KDesp73");
@@ -51,6 +52,8 @@ int main(int argc, char** argv)
                 exit(1);
         }
     }
+    free(opts);
+    free(fmt);
 
     SetTraceLogLevel(LOG_WARNING);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);

@@ -5,6 +5,7 @@ TODO: background pixelart
 TODO: (demo) Animation Framework
 TODO: (demo) README
 TODO: (demo) Add text to level
+TODO: check for memory leaks
 DONE: level builder
 DONE: load level from file
 DONE: better assets

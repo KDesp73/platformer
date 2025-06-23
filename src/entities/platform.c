@@ -125,7 +125,8 @@ void add_platform(Platform* platform, PlatformCollection* collection)
     assert(collection->items != NULL);
 
     if(collection->count >= collection->capacity) {
-        PANIC("Max capacity");
+        ERRO("Max capacity");
+        return;
     }
 
     collection->items[collection->count++] = platform;

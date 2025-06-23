@@ -54,7 +54,7 @@ Cstr selection_to_string(Selection selection)
 }
 
 #define MAX_PLATFORMS 200
-#define MAX_GHOSTS 20
+#define MAX_GHOSTS 50
 
 typedef struct {
     Vector2 start;

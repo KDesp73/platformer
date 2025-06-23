@@ -106,7 +106,8 @@ void add_ghost(Ghost* ghost, GhostCollection* collection)
     assert(collection->items != NULL);
 
     if(collection->count >= collection->capacity) {
-        PANIC("Max capacity");
+        ERRO("Max capacity");
+        return;
     }
 
     collection->items[collection->count++] = ghost;

@@ -68,6 +68,7 @@ int test_platforms(TestPlatform* expected_platforms, Level* level){
 }
 
 int main(){
+    SetTraceLogLevel(LOG_NONE);
     InitWindow(0, 0, "Test");
     Level* level = load_level_from_file("test/test.txt", (Textures) {.items = NULL});
 

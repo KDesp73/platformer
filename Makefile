@@ -1,6 +1,12 @@
 CC = cc
+SANITIZERS = -fsanitize=address,undefined
 CFLAGS = -Wall -Iinclude -Ilib/raylib/raylib-5.0_linux_amd64/include -DDEBUG -ggdb
-LFLAGS = -L./lib/raylib/raylib-5.0_linux_amd64/lib -lm -lpthread -ldl -l:libraylib.a
+LDFLAGS = -L./lib/raylib/raylib-5.0_linux_amd64/lib -lm -lpthread -ldl -l:libraylib.a
+
+ifdef SANITIZE
+	CFLAGS += $(SANITIZERS)
+	LDFLAGS += $(SANITIZERS)
+endif
 
 SRC_DIR = src
 INCLUDE_DIR = include
@@ -30,7 +36,7 @@ $(BUILD_DIR):
 
 # Rule to build the executable
 $(TARGET): $(OBJ_FILES) $(BUILD_DIR)/main.o	
-	$(CC) -o $@ $^ $(LFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 # Rule to build object files from source files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
@@ -40,7 +46,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 # =======TEST=======
 # Rule to build the test program
 $(TEST_TARGET): $(OBJ_FILES) $(TEST_OBJ)
-	$(CC) -o $@ $^ $(LFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 # Rule to build test object file from test source file
 $(BUILD_DIR)/test_load_level.o: $(TEST_SRC)
